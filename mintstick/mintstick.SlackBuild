@@ -1,0 +1,115 @@
+#!/bin/sh
+
+# Slackware build script for mintstick
+
+# Copyright 2014 Vladislav Borisov Moscow, Russia
+# All rights reserved.
+#
+# Redistribution and use of this script, with or without modification, is
+# permitted provided that the following conditions are met:
+#
+# 1. Redistributions of this script must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR IMPLIED
+#  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+#  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO
+#  EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+#  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+#  OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+#  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+#  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+PRGNAM=mintstick
+VERSION=${VERSION:-1.2.1}
+BUILD=${BUILD:-1}
+TAG=${TAG:-fsleg}
+
+# Automatically determine the architecture we're building on:
+if [ -z "$ARCH" ]; then
+  case "$( uname -m )" in
+    i?86) ARCH=i486 ;;
+    arm*) ARCH=arm ;;
+    # Unless $ARCH is already set, use uname -m for all other archs:
+       *) ARCH=$( uname -m ) ;;
+  esac
+fi
+
+CWD=$(pwd)
+TMP=${TMP:-/tmp/SBo}
+PKG=$TMP/package-$PRGNAM
+OUTPUT=${OUTPUT:-/tmp}
+
+if [ "$ARCH" = "x86_64" ]; then
+  LIBDIRSUFFIX="64"
+else
+  LIBDIRSUFFIX=""
+fi
+
+set -e # Exit on most errors
+
+rm -rf $PKG
+mkdir -p $TMP $PKG $OUTPUT
+cd $TMP
+
+rm -rf $PRGNAM-master
+unzip $CWD/master.zip
+cd $PRGNAM-master
+chown -R root:root .
+find -L . \
+ \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
+  -o -perm 511 \) -exec chmod 755 {} \; -o \
+ \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
+ -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
+ 
+# mintstick is just a few python scripts, so there's nothing to build
+# The following is taken from install.sh
+LIBFILES="mintstick.py raw_write.py raw_format.py mountutils.py"
+DATAFILES="mintstick.ui"
+
+mkdir -p ${PKG}/usr/share/applications
+mkdir -p ${PKG}/usr/bin
+mkdir -p ${PKG}/usr/share/polkit-1/actions
+mkdir -p ${PKG}/usr/share/kde4/apps/solid/actions
+cp share/applications/mintstick.desktop ${PKG}/usr/share/applications/
+cp share/applications/mintstick-format.desktop ${PKG}/usr/share/applications/
+cp share/applications/mintstick-kde.desktop ${PKG}/usr/share/applications/
+cp share/applications/mintstick-format-kde.desktop ${PKG}/usr/share/applications/
+cp share/polkit/org.linuxmint.im.policy ${PKG}/usr/share/polkit-1/actions
+cp share/kde4/mintstick-format_action.desktop ${PKG}/usr/share/kde4/apps/solid/actions
+cp mintstick ${PKG}/usr/bin/
+mkdir -p ${PKG}/usr/lib${LIBDIRSUFFIX}/mintstick
+mkdir -p ${PKG}/usr/share/mintstick
+
+for item in $LIBFILES; do
+    cp lib/$item ${PKG}/usr/lib${LIBDIRSUFFIX}/mintstick/
+done
+
+for item in $DATAFILES; do
+    cp share/mintstick/$item ${PKG}/usr/share/mintstick/
+done
+
+# Copy a parody to the man page
+mkdir -p ${PKG}/usr/man/man1
+cp debian/mintstick.1 ${PKG}/usr/man/man1/
+
+# Compress man pages
+find $PKG/usr/man -type f -exec gzip -9 {} \;
+for i in $( find $PKG/usr/man -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
+
+# Copy program documentation into the package
+mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
+cp -aR \
+  debian/{changelog,copyright} \
+  COPYING README TODO \
+  $PKG/usr/doc/$PRGNAM-$VERSION
+cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
+
+# Copy the slack-desc into ./install
+mkdir -p $PKG/install
+cat $CWD/slack-desc > $PKG/install/slack-desc
+
+cd $PKG
+/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-noarch-$BUILD$TAG.${PKGTYPE:-txz}

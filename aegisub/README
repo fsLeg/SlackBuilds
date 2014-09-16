@@ -1,0 +1,9 @@
+Aegisub is a free, cross-platform open source tool for creating and
+modifying subtitles. Aegisub makes it quick and easy to time subtitles
+to audio, and features many powerful tools for styling them, including
+a built-in real-time video preview.
+
+pulseaudio, openal, portaudio are optional dependencies.
+
+If you want bleeding edge Aegisub, get git tree tarball and define
+VERSION variable as "git". Be warned that it might not build.

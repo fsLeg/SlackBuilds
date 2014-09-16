@@ -1,0 +1,11 @@
+     |-----handy-ruler------------------------------------------------------|
+ffms2: ffms2 (FFmpegSource library)
+ffms2:
+ffms2: FFmpegSource (usually known as FFMS or FFMS2) is a cross-platform
+ffms2: wrapper library around libav/FFmpeg, plus some additional
+ffms2: components to deal with file formats libavformat has (or used to
+ffms2: have) problems with.
+ffms2:
+ffms2: Website: https://github.com/FFMS/ffms2
+ffms2:
+ffms2:
