@@ -143,14 +143,14 @@ rm -rf usr/share/{lintian,menu}
 
 # Add support for the alienBOB's chromium-pepperflash package
 mkdir -p etc/default
-cat $CWD/opera.conf > etc/default/opera${FLAVOR}.conf
+cat $CWD/opera.conf > etc/default/opera${FLAVOR}
 
 # Add apropriate launcher
 rm -rf usr/bin/opera${FLAVOR}
 cat $CWD/opera.sh > usr/bin/opera${FLAVOR}
 sed -i "s/_LIBDIRSUFFIX_/${LIBDIRSUFFIX}/" \
     usr/bin/opera${FLAVOR} \
-    etc/default/opera${FLAVOR}.conf
+    etc/default/opera${FLAVOR}
 chmod 755 usr/bin/opera${FLAVOR}
 
 # Move everything to $PKG
@@ -177,7 +177,7 @@ cat $CWD/slack-desc > $PKG/install/slack-desc
 
 # Change Opera flavour in some files
 sed -i "s/opera-beta/opera${FLAVOR}/g" $PKG/usr/bin/opera${FLAVOR} \
-                                        $PKG/etc/default/opera${FLAVOR}.conf \
+                                        $PKG/etc/default/opera${FLAVOR} \
                                         $PKG/install/slack-desc
 
 cd $PKG
