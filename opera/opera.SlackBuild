@@ -32,11 +32,11 @@ fi
 
 # You can build local version of ffmpeg if you want H.264 and MP3 decoding support
 FFMPEG=${FFMPEG:-no}
-FFMPEG_VERSION="2.3.3"
+FFMPEG_VERSION="2.4.2"
 
 PRGNAM_BASE=opera
 PRGNAM=${PRGNAM_BASE}${FLAVOR}
-VERSION=${VERSION:-25.0.1614.54}
+VERSION=${VERSION:-26.0.1656.8}
 BUILD=${BUILD:-1}
 TAG=${TAG:-fsleg}
 
