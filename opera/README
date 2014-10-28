@@ -4,13 +4,18 @@ This is a unified SlackBuild that can make packages for all three Opera flavors:
 stable (not yet released at the moment of writing), beta and developer. By
 default beta version is built. If you want other flavor, specify it in a
 FLAVOR variable. Possible values: "stable", "beta" and "developer". Don't
-forget to adjust VERSION variable accrodingly.
+forget to adjust VERSION variable accordingly.
 
 This package makes use of AlienBOB's chromium-pepperflash-plugin package. If you
 have it installed, you'll have Adobe FlashPlayer.
 
 By default Opera can only play WebM and Ogg Vorbis files in HTML5. To make it
-play other formats as well you need ffmpeg libraries of specific version. If you
-already have ffmpeg installed and it works with Opera, all is good. If not, you
+play other formats as well you need FFmpeg libraries of specific version. If you
+already have FFmpeg installed and it works with Opera, all is good. If not, you
 can specify FFMPEG=yes to build local libraries that work with Opera. It is safe
-for your ffmpeg installation, if you have one.
+for your FFmpeg installation, if you have one.
+
+Sometimes different flavors of Opera require different FFmpeg versions. If
+the flavor you chose doesn't support FFmpeg version in the SlackBuild, you
+can specify a different version using FFMPEG_VERSION variable, i. e.
+FFMPEG_VERSION=2.4.2
