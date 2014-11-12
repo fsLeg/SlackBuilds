@@ -29,7 +29,7 @@ TAG=${TAG:-fsleg}
 
 # Use parallel building if possible
 if [ -z "$NUMJOBS" ]; then
-  NUMJOBS=$( lscpu | egrep '^CPU\(s\):' | tr -s ' ' | cut -d ' ' -f 2 )
+  NUMJOBS=$(nproc)
 fi
 
 # Automatically determine the architecture we're building on:
