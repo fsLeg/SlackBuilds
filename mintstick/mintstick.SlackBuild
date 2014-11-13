@@ -23,7 +23,8 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PRGNAM=mintstick
-VERSION=${VERSION:-1.2.1}
+VERSION=${VERSION:-1.2.2}
+VERSION_HASH=${VERSION_HASH:-57a40ea66d4ad8394d4bebb502d8568a8ad13632}
 BUILD=${BUILD:-1}
 TAG=${TAG:-fsleg}
 
@@ -54,9 +55,9 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 
-rm -rf $PRGNAM-master
-unzip $CWD/master.zip
-cd $PRGNAM-master
+rm -rf $PRGNAM-$VERSION_HASH
+unzip $CWD/$VERSION_HASH.zip
+cd $PRGNAM-$VERSION_HASH
 chown -R root:root .
 find -L . \
  \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
