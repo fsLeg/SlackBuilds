@@ -23,7 +23,7 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PRGNAM=Popcorn-Time
-VERSION=${VERSION:-0.3.2}
+VERSION=${VERSION:-0.3.5.2}
 BUILD=${BUILD:-1}
 TAG=${TAG:-fsleg}
 
@@ -67,8 +67,9 @@ mkdir -p $TMP $PKG $OUTPUT
 
 cd $TMP
 rm -rf $PRGNAM
-tar xvf $CWD/$PRGNAM-$VERSION-Linux-$BITS.tar.gz
+mkdir -p $PRGNAM
 cd $PRGNAM
+tar xvf $CWD/$PRGNAM-$VERSION-Linux$BITS.tar.xz
 chown -R root:root .
 find -L . \
  \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
