@@ -1,10 +1,9 @@
 Opera is the fastest and free (as in free beer) alternative browser.
 
 This is a unified SlackBuild that can make packages for all three Opera flavors:
-stable (not yet released at the moment of writing), beta and developer. By
-default beta version is built. If you want other flavor, specify it in a
-FLAVOR variable. Possible values: "stable", "beta" and "developer". Don't
-forget to adjust VERSION variable accordingly.
+stable, beta and developer. By default stable version is built. If you want
+other flavor, specify it in the FLAVOR variable. Possible values: "stable",
+"beta" and "developer". Don't forget to adjust VERSION variable accordingly.
 
 This package makes use of AlienBOB's chromium-pepperflash-plugin package. If you
 have it installed, you'll have Adobe FlashPlayer.
@@ -19,3 +18,5 @@ Sometimes different flavors of Opera require different FFmpeg versions. If
 the flavor you chose doesn't support FFmpeg version in the SlackBuild, you
 can specify a different version using FFMPEG_VERSION variable, i. e.
 FFMPEG_VERSION=2.4.2
+
+WARNING: this package (stable flavor) conflicts with classic Opera from SBo.

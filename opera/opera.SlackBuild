@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Slackware build script for Opera (Beta and Developer flavours)
+# Slackware build script for Opera (stable and Developer flavours)
 
 # Copyright 2014 Vladislav Borisov Moscow, Russia
 # All rights reserved.
@@ -23,20 +23,16 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # If your want to make a different flavor of Opera, change this variable.
-# For now there are two valid choices: "beta" and "developer".
-FLAVOR=-${FLAVOR:-beta}
-
-if [ "${FLAVOR}" == "-stable" ]; then
-  FLAVOR=""
-fi
+# The valid choices are: "stable", "stable" and "developer".
+FLAVOR=-${FLAVOR:-stable}
 
 # You can build local version of ffmpeg if you want H.264 and MP3 decoding support
 FFMPEG=${FFMPEG:-no}
-FFMPEG_VERSION="2.4.3"
+FFMPEG_VERSION="2.4.4"
 
 PRGNAM_BASE=opera
 PRGNAM=${PRGNAM_BASE}${FLAVOR}
-VERSION=${VERSION:-26.0.1656.20}
+VERSION=${VERSION:-26.0.1656.32}
 BUILD=${BUILD:-1}
 TAG=${TAG:-fsleg}
 
@@ -127,6 +123,12 @@ find -L . \
  \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
  -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
 
+# opera-stable isn't actually called like that within the package,
+# although we'll preserve that name in order to avoid conflict with classic Opera package
+if [ "-stable" = "${FLAVOR}" ]; then
+  FLAVOR=""
+fi
+
 # Move libs to a more apropriate place
 mkdir -p usr/lib${LIBDIRSUFFIX}
 mv usr/lib/x86_64-linux-gnu/opera${FLAVOR} usr/lib${LIBDIRSUFFIX}/
@@ -156,7 +158,7 @@ chmod 755 usr/bin/opera${FLAVOR}
 # Move everything to $PKG
 mv usr etc $PKG/
 
-if [ "${FFMPEG}" == "yes" ]; then
+if [ "yes" = "${FFMPEG}" ]; then
     build_ffmpeg
 else
     sed -i 's/PATH_TO_FFMPEG\://' ${PKG}/usr/bin/opera${FLAVOR}
@@ -178,9 +180,9 @@ mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc
 
 # Change Opera flavour in some files
-sed -i "s/opera-beta/opera${FLAVOR}/g" $PKG/usr/bin/opera${FLAVOR} \
-                                        $PKG/etc/default/opera${FLAVOR} \
-                                        $PKG/install/slack-desc
+sed -i "s/opera_FLAVOR_/opera${FLAVOR}/g" $PKG/usr/bin/opera${FLAVOR} \
+                                          $PKG/etc/default/opera${FLAVOR}
+sed -i "s/opera_FLAVOR_/${PRGNAM}/g"      $PKG/install/slack-desc
 
 cd $PKG
 /sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.${PKGTYPE:-txz}
