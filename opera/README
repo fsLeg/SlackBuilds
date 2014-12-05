@@ -19,4 +19,6 @@ the flavor you chose doesn't support FFmpeg version in the SlackBuild, you
 can specify a different version using FFMPEG_VERSION variable, i. e.
 FFMPEG_VERSION=2.4.2
 
+For now there's only 64bit version available.
+
 WARNING: this package (stable flavor) conflicts with classic Opera from SBo.

@@ -25,7 +25,7 @@
 PRGNAM=mintstick
 VERSION=${VERSION:-1.2.2}
 VERSION_HASH=${VERSION_HASH:-57a40ea66d4ad8394d4bebb502d8568a8ad13632}
-BUILD=${BUILD:-1}
+BUILD=${BUILD:-2}
 TAG=${TAG:-fsleg}
 
 # Automatically determine the architecture we're building on:
@@ -91,6 +91,10 @@ done
 for item in $DATAFILES; do
     cp share/mintstick/$item ${PKG}/usr/share/mintstick/
 done
+
+# Fix library dir for x86_64
+sed -i "s,/usr/lib/,/usr/lib${LIBDIRSUFFIX}/," ${PKG}/usr/bin/mintstick \
+                                               ${PKG}/usr/lib${LIBDIRSUFFIX}/mintstick/mintstick.py
 
 # Copy a parody to the man page
 mkdir -p ${PKG}/usr/man/man1
