@@ -1,9 +1,3 @@
-Tomb aims to be an 100% free and open source system for easy encryption and
-backup of personal files, written in code that is easy to review and links
-commonly shared components.
-
-Tomb generates encrypted storage files to be opened and closed using their
-associated keyfiles, which are also protected with a password chosen by the
-user.
-
-steghide, qrencode are optional dependencies.
+Mintstick is a graphical application to write .img and .iso files to
+USB keys. It can also format USB Key from a contextual menu in
+Cinammon and KDE desktops.
