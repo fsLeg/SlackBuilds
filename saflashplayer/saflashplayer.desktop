@@ -1,0 +1,7 @@
+[Desktop Entry]
+Categories=AudioVideo;Player;Video;
+Exec=saflashplayer %U
+GenericName=FlashPlayer StandAlone
+MimeType=application/x-shockwave-flash
+Type=Application
+Icon=flash
