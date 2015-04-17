@@ -2,7 +2,7 @@
 
 # Slackware build script for mintstick
 
-# Copyright 2014 Vladislav Borisov Moscow, Russia
+# Copyright 2014-2015 Vladislav Borisov Moscow, Russia
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
@@ -23,9 +23,9 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PRGNAM=mintstick
-VERSION=${VERSION:-1.2.2}
-VERSION_HASH=${VERSION_HASH:-57a40ea66d4ad8394d4bebb502d8568a8ad13632}
-BUILD=${BUILD:-2}
+VERSION=${VERSION:-1.2.4}
+VERSION_HASH=${VERSION_HASH:-ffc945833d1f721f42b369d9782ef4a0ed8ddb22}
+BUILD=${BUILD:-1}
 TAG=${TAG:-fsleg}
 
 # Automatically determine the architecture we're building on:
@@ -64,7 +64,7 @@ find -L . \
   -o -perm 511 \) -exec chmod 755 {} \; -o \
  \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
  -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
- 
+
 # mintstick is just a few python scripts, so there's nothing to build
 # The following is taken from install.sh
 LIBFILES="mintstick.py raw_write.py raw_format.py mountutils.py"
