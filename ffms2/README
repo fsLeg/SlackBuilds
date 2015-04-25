@@ -1,3 +1,0 @@
-FFmpegSource (usually known as FFMS or FFMS2) is a cross-platform wrapper
-library around libav/FFmpeg, plus some additional components to deal with file
-formats libavformat has (or used to have) problems with.
