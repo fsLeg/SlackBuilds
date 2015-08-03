@@ -23,7 +23,7 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PRGNAM=Tomb
-VERSION=${VERSION:-2.0.1}
+VERSION=${VERSION:-2.1}
 BUILD=${BUILD:-1}
 TAG=${TAG:-fsleg}
 
@@ -61,6 +61,26 @@ fi
 
 make install DESTDIR=$PKG PREFIX=/usr MANDIR=/usr/man
 
+# Install translations
+cd extras/po
+make install DESTDIR=$PKG PREFIX=/usr
+cd ../..
+
+if [ "${KDF}" == "yes" ]; then
+  cd extras/kdf-keys
+  make
+  make install DESTDIR=$PKG PREFIX=/usr
+  cd ../..
+fi
+
+if [ "${TRAY}" == "yes" ]; then
+  cd extras/gtk-tray
+  make install DESTDIR=$PKG PREFIX=/usr
+  mkdir -p $PKG/doc/$PRGNAM-$VERSION/gtk-tray
+  cp README.md $PKG/doc/$PRGNAM-$VERSION/gtk-tray/
+  cd ../..
+fi
+
 # Compress man pages
 find $PKG/usr/man -type f -exec gzip -9 {} \;
 for i in $( find $PKG/usr/man -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
@@ -69,7 +89,7 @@ for i in $( find $PKG/usr/man -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; r
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
 cp -aR \
   doc/*.{pdf,txt,org} \
-  AUTHORS.txt ChangeLog.txt COPYING INSTALL.txt KNOWN_BUGS.txt README.txt \
+  AUTHORS.md ChangeLog.md COPYING INSTALL.md KNOWN_BUGS.md README.md \
   $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 

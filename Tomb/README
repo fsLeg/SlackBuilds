@@ -6,4 +6,9 @@ Tomb generates encrypted storage files to be opened and closed using their
 associated keyfiles, which are also protected with a password chosen by the
 user.
 
+To install a tool to create keys armored against dictionary attacks, supply
+KDF=yes
+
+To install GTK icon, supply TRAY=yes
+
 steghide, qrencode are optional dependencies.
