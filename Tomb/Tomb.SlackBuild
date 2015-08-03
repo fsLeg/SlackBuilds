@@ -75,7 +75,9 @@ fi
 
 if [ "${TRAY}" == "yes" ]; then
   cd extras/gtk-tray
+  make
   make install DESTDIR=$PKG PREFIX=/usr
+  install -Dm755 tomb-gtk-tray $PKG/usr/bin
   mkdir -p $PKG/doc/$PRGNAM-$VERSION/gtk-tray
   cp README.md $PKG/doc/$PRGNAM-$VERSION/gtk-tray/
   cd ../..
