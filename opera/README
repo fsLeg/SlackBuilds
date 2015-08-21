@@ -8,6 +8,12 @@ other flavor, specify it in the FLAVOR variable. Possible values: "stable",
 This package makes use of AlienBOB's chromium-pepperflash-plugin package. If you
 have it installed, you'll have Adobe FlashPlayer.
 
+WARNING: Due to changes in Chromium, Opera 31 and up doesn't support ffmpeg
+libraries aside from the one compiled using Chromium sources. The bundled
+libffmpeg.so doesn't support proprietary media formats (H.264, MP3, AAC),
+but due to a bug the browser reports that it does which may lead to problems
+with websites that serve proprietary formats first.
+
 By default Opera can only play WebM and Ogg Vorbis files in HTML5. To make it
 play other formats as well you need FFmpeg libraries of specific version. If you
 already have FFmpeg installed and it works with Opera, all is good. If not, you
