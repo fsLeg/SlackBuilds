@@ -23,7 +23,7 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PRGNAM=Tomb
-VERSION=${VERSION:-2.1}
+VERSION=${VERSION:-2.1.1}
 BUILD=${BUILD:-1}
 TAG=${TAG:-fsleg}
 
@@ -91,7 +91,7 @@ for i in $( find $PKG/usr/man -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; r
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
 cp -aR \
   doc/*.{pdf,txt,org} \
-  AUTHORS.md ChangeLog.md COPYING INSTALL.md KNOWN_BUGS.md README.md \
+  AUTHORS.txt ChangeLog.txt COPYING INSTALL.txt KNOWN_BUGS.txt README.txt \
   $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
