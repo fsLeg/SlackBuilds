@@ -83,6 +83,7 @@ if [ "$VERSION" == "git" ]; then
 fi
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="-lpthread" \
 ./configure \
   --prefix=/usr \
   --libdir=/usr/lib${LIBDIRSUFFIX} \
@@ -92,7 +93,7 @@ CXXFLAGS="$SLKCFLAGS" \
   --docdir=/usr/doc/$PRGNAM-$VERSION \
   --build=$ARCH-slackware-linux \
   --with-wx-config=$(which wx-config-3.0) \
-  --with-player-audio=alsa
+  --with-player-audio=pulseaudio
 
 make -j$NUMJOBS
 make install DESTDIR=$PKG
