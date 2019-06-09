@@ -23,7 +23,7 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PRGNAM=Tomb
-VERSION=${VERSION:-2.1.1}
+VERSION=${VERSION:-2.6}
 BUILD=${BUILD:-1}
 TAG=${TAG:-fsleg}
 
@@ -62,7 +62,7 @@ fi
 make install DESTDIR=$PKG PREFIX=/usr MANDIR=/usr/man
 
 # Install translations
-cd extras/po
+cd extras/translations
 make install DESTDIR=$PKG PREFIX=/usr
 cd ../..
 
@@ -73,13 +73,30 @@ if [ "${KDF}" == "yes" ]; then
   cd ../..
 fi
 
-if [ "${TRAY}" == "yes" ]; then
+if [ "${GTK_TRAY}" == "yes" ]; then
   cd extras/gtk-tray
   make
   make install DESTDIR=$PKG PREFIX=/usr
   install -Dm755 tomb-gtk-tray $PKG/usr/bin
-  mkdir -p $PKG/doc/$PRGNAM-$VERSION/gtk-tray
-  cp README.md $PKG/doc/$PRGNAM-$VERSION/gtk-tray/
+  mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION/gtk-tray
+  cp README.md $PKG/usr/doc/$PRGNAM-$VERSION/gtk-tray/
+  cd ../..
+fi
+
+if [ "${QT_TRAY}" == "yes" ]; then
+  cd extras/qt-tray
+  qmake-qt5
+  make
+  install -Dm755 tomb-qt-tray $PKG/usr/bin
+  mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION/qt-tray
+  cp README.txt $PKG/usr/doc/$PRGNAM-$VERSION/qt-tray/
+  cd ../..
+fi
+
+if [ "${GUI}" == "yes" ]; then
+  cd extras/gtomb
+  patch -p1 < ${CWD}/paths.patch
+  install -Dm755 gtomb $PKG/usr/bin
   cd ../..
 fi
 
@@ -91,7 +108,7 @@ for i in $( find $PKG/usr/man -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; r
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
 cp -aR \
   doc/*.{pdf,txt,org} \
-  AUTHORS.txt ChangeLog.txt COPYING INSTALL.txt KNOWN_BUGS.txt README.txt \
+  AUTHORS.txt ChangeLog.txt COPYING.txt INSTALL.txt KNOWN_BUGS.txt README.txt \
   $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 

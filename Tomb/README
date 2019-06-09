@@ -9,6 +9,10 @@ user.
 To install a tool to create keys armored against dictionary attacks, supply
 KDF=yes
 
-To install GTK icon, supply TRAY=yes
+To install GTK tray icon, supply GTK_TRAY=yes
 
-steghide, qrencode are optional dependencies.
+To install Qt tray icon, supply QT_TRAY=yes. This requires qt5.
+
+To install GTK GUI, supply GUI=yes. This requires zenity.
+
+steghide, qrencode, cloakify are optional dependencies.
