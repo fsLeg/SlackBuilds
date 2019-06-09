@@ -1,7 +1,10 @@
 [Desktop Entry]
-Categories=AudioVideo;Player;Video;
-Exec=saflashplayer %U
-GenericName=FlashPlayer StandAlone
-MimeType=application/x-shockwave-flash
+Version=1.0
 Type=Application
+GenericName=FlashPlayer StandAlone
+Comment=Open SWF files
+Exec=saflashplayer %U
 Icon=flash
+Terminal=false
+Categories=AudioVideo;Player;Video;
+MimeType=application/x-shockwave-flash

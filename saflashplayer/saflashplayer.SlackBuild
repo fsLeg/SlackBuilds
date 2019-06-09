@@ -23,7 +23,7 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PRGNAM=saflashplayer
-VERSION=${VERSION:-11.2.202.491}
+VERSION=${VERSION:-32.0.0.192}
 BUILD=${BUILD:-1}
 TAG=${TAG:-fsleg}
 
@@ -37,13 +37,14 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-if [ "x86_64" == "${ARCH}" ]; then
+if [ "i486" == "${ARCH}" ]; then
   echo
   echo "*************************************************************"
-  echo "It seems you are running a 64bit system. You need a multilib"
-  echo "environment in order to run this program."
+  echo "It seems you are running a 32bit system. Standalone"
+  echo "flashplayer only supports 64bit."
   echo "*************************************************************"
   echo
+  exit 1
 fi
 
 CWD=$(pwd)
@@ -59,8 +60,7 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 
-rm -rf flashplayer
-tar xvf $CWD/flashplayer_11_sa.i386.tar.gz
+tar xvf $CWD/flash_player_sa_linux.x86_64.tar.gz
 mkdir -p $PKG/usr/bin $PKG/usr/share/applications
 mv flashplayer $PKG/usr/bin/saflashplayer.bin
 cp -a $CWD/saflashplayer.sh $PKG/usr/bin/saflashplayer
@@ -76,6 +76,7 @@ find -L $PKG \
 
 # Copy program documentation into the package
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
+cp -aR LGPL license.pdf $PKG/usr/doc/$PRGNAM-$VERSION/
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
 # Copy the slack-desc (and a custom doinst.sh if necessary) into ./install
