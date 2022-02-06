@@ -2,8 +2,8 @@
 
 # Slackware build script for Aegisub
 
-# Copyright 2013-2014 Vladislav Borisov, Moscow, Russia
-# Patches from  Willy Sudiarto Raharjo <willysr@slackbuilds.org>
+# Copyright 2013-2022 Vladislav Borisov, Moscow, Russia
+# Patches from Willy Sudiarto Raharjo <willysr@slackbuilds.org>
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
