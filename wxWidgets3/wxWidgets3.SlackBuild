@@ -2,7 +2,7 @@
 
 # Slackware build script for wxWidgets 3.0
 
-# Copyright 2013-2014 Vladislav Borisov Moscow, Russia
+# Copyright 2013-2022 Vladislav Borisov Moscow, Russia
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
@@ -23,7 +23,7 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PRGNAM=wxWidgets3
-VERSION=${VERSION:-3.0.4}
+VERSION=${VERSION:-3.0.5}
 BUILD=${BUILD:-1}
 TAG=${TAG:-fsleg}
 
