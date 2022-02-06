@@ -1,3 +1,0 @@
-pyparted is a set of Python modules that provide Python programmers an interface 
-to libparted, the ​GNU parted library fordisk partitioning and filesystem 
-manipulation.
