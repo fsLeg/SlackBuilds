@@ -1,0 +1,12 @@
+                |-----handy-ruler------------------------------------------------------|
+shadowsocks-rust: shadowsocks-rust (rust port of shadowsocks, a secure socks5 proxy)
+shadowsocks-rust:
+shadowsocks-rust: Rust port of shadowsocks.
+shadowsocks-rust:
+shadowsocks-rust: Shadowsocks is a fast tunnel proxy that helps you bypass firewalls.
+shadowsocks-rust:
+shadowsocks-rust: Homepage: https://github.com/shadowsocks/shadowsocks-rust
+shadowsocks-rust:
+shadowsocks-rust:
+shadowsocks-rust:
+shadowsocks-rust:
