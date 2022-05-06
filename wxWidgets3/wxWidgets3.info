@@ -1,7 +1,7 @@
 PRGNAM="wxWidgets3"
 VERSION="3.0.5"
 HOMEPAGE="http://wxwidgets.org/"
-DOWNLOAD="https://github.com/wxWidgets/wxWidgets/releases/download/v${VERSION}/wxWidgets-${VERSION}.tar.bz2"
+DOWNLOAD="https://github.com/wxWidgets/wxWidgets/releases/download/v${VERSION}/wxWidgets-3.0.5.tar.bz2"
 MD5SUM="b4304777652acee8358066cdce5f6f27"
 DOWNLOAD_x86_64=""
 MD5SUM_x86_64=""
