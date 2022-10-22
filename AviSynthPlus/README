@@ -1,7 +1,0 @@
-AviSynth+ is an improved version of the AviSynth frameserver, with
-improved features and developer friendliness. It is fully compatible
-with plugins and scripts written for AviSynth.
-
-Set DOCS=yes to build HTML docs. This requires Sphinx.
-
-DevIL is an optional dependency to build ImageSeq plugin.
