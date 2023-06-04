@@ -1,0 +1,12 @@
+            |-----handy-ruler------------------------------------------------------|
+python-fido2: python-fido2 (FIDO2/WebAuthn library for clients and servers)
+python-fido2:
+python-fido2: Provides library functionality for communicating with a FIDO device
+python-fido2: over USB as well as verifying attestation and assertion signatures.
+python-fido2:
+python-fido2: Website: https://github.com/Yubico/python-fido2
+python-fido2:
+python-fido2:
+python-fido2:
+python-fido2:
+python-fido2:
