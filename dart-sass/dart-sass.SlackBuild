@@ -58,7 +58,7 @@ cd $TMP
 
 tar xvf $CWD/$PRGNAM-$VERSION-linux-$ARCH.tar.gz
 cd $PRGNAM
-mkdir -p $PKG/usr/bin $PKG/usr/lib${LIBDIRSUFFIX}/$PRGNAM
+mkdir -p $PKG/usr/bin $PKG/usr/lib$LIBDIRSUFFIX/$PRGNAM
 sed -i "s/\/src\//\/..\/lib$LIBDIRSUFFIX\/$PRGNAM\//g" sass
 cp sass $PKG/usr/bin/
 cp src/dart src/sass.snapshot $PKG/usr/lib$LIBDIRSUFFIX/$PRGNAM/

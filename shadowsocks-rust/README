@@ -2,9 +2,7 @@ A Rust port of shadowsocks that superceded shadowsocks-libev.
 
 Shadowsocks is a fast tunnel proxy that helps you bypass firewalls.
 
-Since version 1.14.1 shadowsocks-rust requires `strip` function that
-came in rust-1.59 which is newer than what Slackware 15 has, so
-rust-for-mozilla from extra/ is required to build the package.
+rust >=1.70 from extra/ is required to build this package.
 
 This SlackBuild downloads nessessary crates to build the binaries,
 so internet connection is required. Then again, if you're going to
