@@ -24,7 +24,7 @@
 
 PRGNAM=yubioath-desktop
 TARNAM=yubico-authenticator
-VERSION=${VERSION:-6.2.0}
+VERSION=${VERSION:-6.3.0}
 BUILD=${BUILD:-1}
 TAG=${TAG:-fsleg}
 PKGTYPE=${PKGTYPE:-txz}
@@ -53,7 +53,7 @@ mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 
 tar xvf $CWD/$TARNAM-$VERSION-linux.tar.gz
-cd $PRGNAM-$VERSION-linux
+cd $TARNAM-$VERSION-linux
 mkdir -p $PKG/opt/$PRGNAM
 cp -aR data/ helper/ lib/ linux_support/ authenticator $PKG/opt/$PRGNAM/
 mkdir -p $PKG/usr/share/applications
