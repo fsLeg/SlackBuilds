@@ -1,0 +1,12 @@
+          |-----handy-ruler------------------------------------------------------|
+fdpowermon: fdpowermon (simple battery power monitor for laptops with ACPI)
+fdpowermon:
+fdpowermon: fdpowermon is a simple perl script that installs an icon in a system
+fdpowermon: tray compatible with the freedesktop.org specification.
+fdpowermon:
+fdpowermon: Every three seconds, fdpowermon calls acpi to find out what the current
+fdpowermon: battery level is. It will set the output of the acpi command as a
+fdpowermon: tooltip text, and will update the used icon as appropriate.
+fdpowermon:
+fdpowermon: Homepage: https://github.com/yoe/fdpowermon
+fdpowermon:
