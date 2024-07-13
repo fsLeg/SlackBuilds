@@ -2,7 +2,7 @@
 
 # Slackware build script for python-fido2
 
-# Copyright 2023 Vladislav Borisov, Moscow, Russia
+# Copyright 2023-2024 Vladislav 'fsLeg' Borisov, Moscow, Russia
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
@@ -39,6 +39,14 @@ if [ -z "$ARCH" ]; then
 # Unless $ARCH is already set, use uname -m for all other archs:
        *) ARCH=$( uname -m ) ;;
   esac
+fi
+
+# If the variable PRINT_PACKAGE_NAME is set, then this script will report what
+# the name of the created package would be, and then exit. This information
+# could be useful to other scripts.
+if [ ! -z "${PRINT_PACKAGE_NAME}" ]; then
+  echo "$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE"
+  exit 0
 fi
 
 TMP=${TMP:-/tmp/SBo}

@@ -2,6 +2,7 @@
 Version=1.0
 Type=Application
 GenericName=FlashPlayer StandAlone
+Name=FlashPlayer StandAlone
 Comment=Open SWF files
 Exec=saflashplayer %U
 Icon=flash
