@@ -1,7 +1,4 @@
 Also known as Flash Player projector, SAFlashPlayer can play local SWF
 files without using web browser with Adobe plugin.
 
-Only 64bit binary is provided by Adobe.
-
-Checksum in .info file is unreliable, because Adobe updates the tarball
-without changing the link. This is also true for the program version.
+Only 64 bit binary is provided by Adobe.

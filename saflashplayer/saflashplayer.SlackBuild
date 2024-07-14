@@ -30,21 +30,19 @@ BUILD=${BUILD:-1}
 TAG=${TAG:-fsleg}
 PKGTYPE=${PKGTYPE:-txz}
 
-# Automatically determine the architecture we're building on:
 if [ -z "$ARCH" ]; then
   case "$( uname -m )" in
-    i?86) ARCH=i486 ;;
+    i?86) ARCH=i586 ;;
     arm*) ARCH=arm ;;
-    # Unless $ARCH is already set, use uname -m for all other archs:
        *) ARCH=$( uname -m ) ;;
   esac
 fi
 
-if [ "i486" == "${ARCH}" ]; then
+if [ "x86_64" != "${ARCH}" ]; then
   echo
   echo "*************************************************************"
-  echo "It seems you are running a 32bit system. Standalone"
-  echo "flashplayer only supports 64bit."
+  echo "It seems you are not running a x86_64 system. Standalone"
+  echo "flashplayer only supports x86_64 architecture."
   echo "*************************************************************"
   echo
   exit 1
@@ -64,7 +62,7 @@ OUTPUT=${OUTPUT:-/tmp}
 
 # saflashplayer is a standalone static binary, so no compilation is needed
 
-set -e # Exit on most errors
+set -e
 
 rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
@@ -72,8 +70,7 @@ cd $TMP
 
 tar xvf $CWD/flash_player_sa_linux.x86_64.tar.gz
 mkdir -p $PKG/usr/bin $PKG/usr/share/applications
-mv flashplayer $PKG/usr/bin/saflashplayer.bin
-cp -a $CWD/saflashplayer.sh $PKG/usr/bin/saflashplayer
+mv flashplayer $PKG/usr/bin/saflashplayer
 cp -a $CWD/saflashplayer.desktop $PKG/usr/share/applications/com.adobe.flashplayer.desktop
 chown -R root:root $PKG
 find -L $PKG \
@@ -84,14 +81,12 @@ find -L $PKG \
 
 # Stripping the binary causes it to segfault
 
-# Copy program documentation into the package
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
 cp -aR LGPL license.pdf $PKG/usr/doc/$PRGNAM-$VERSION/
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
-# Copy the slack-desc (and a custom doinst.sh if necessary) into ./install
 mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc
 
 cd $PKG
-/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.${PKGTYPE:-txz}
+/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE
