@@ -32,8 +32,8 @@ PKGTYPE=${PKGTYPE:-txz}
 
 if [ -z "$ARCH" ]; then
   case "$( uname -m )" in
-    i?86) ARCH="ia32" ;;
-    x86_64*) ARCH="x64" ;;
+    i?86) ARCH=i586 ;;
+    arm*) ARCH=arm ;;
        *) ARCH=$( uname -m ) ;;
   esac
 fi
@@ -46,13 +46,25 @@ if [ ! -z "${PRINT_PACKAGE_NAME}" ]; then
   exit 0
 fi
 
+if [ "x86_64" != "${ARCH}" -a "i586" != "${ARCH}" ]; then
+  echo
+  echo "*************************************************************"
+  echo "It seems you are not running an x86 or x86_64 system."
+  echo "dart-sass binaries only support x86 and x86_64 architectures."
+  echo "*************************************************************"
+  echo
+  exit 1
+fi
+
 TMP=${TMP:-/tmp/SBo}
 PKG=$TMP/package-$PRGNAM
 OUTPUT=${OUTPUT:-/tmp}
 
-if [ "$ARCH" = "x64" ]; then
+if [ "$ARCH" = "x86_64" ]; then
+  ARCHID="x64"
   LIBDIRSUFFIX="64"
-else
+elif [ "$ARCH" = "i586" ]; then
+  ARCHID="ia32"
   LIBDIRSUFFIX=""
 fi
 
@@ -64,12 +76,12 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 
-tar xvf $CWD/$PRGNAM-$VERSION-linux-$ARCH.tar.gz
+tar xvf $CWD/$PRGNAM-$VERSION-linux-$ARCHID.tar.gz
 cd $PRGNAM
-mkdir -p $PKG/usr/bin $PKG/usr/lib$LIBDIRSUFFIX/$PRGNAM
+#mkdir -p $PKG/usr/bin $PKG/usr/lib$LIBDIRSUFFIX/$PRGNAM
 sed -i "s/\/src\//\/..\/lib$LIBDIRSUFFIX\/$PRGNAM\//g" sass
-cp sass $PKG/usr/bin/
-cp src/dart src/sass.snapshot $PKG/usr/lib$LIBDIRSUFFIX/$PRGNAM/
+install -D -t $PKG/usr/bin/ sass
+install -D -t $PKG/usr/lib$LIBDIRSUFFIX/$PRGNAM/ src/dart src/sass.snapshot
 chown -R root:root $PKG
 find -L $PKG \
  \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
@@ -77,7 +89,8 @@ find -L $PKG \
  \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
  -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
 
-# Stripping the binary makes it not work
+find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
+  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
 # Copy program license into the package
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
