@@ -76,7 +76,7 @@ mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
 # Build additional documentation
 if [ "${DOCS:-no}" != "no" ]; then
   sphinx-build src/smartcard/doc $PKG/usr/doc/$PRGNAM-$VERSION/html
-  rm -rf $PKG/usr/doc/$PRGNAM-$VERSION/html/{.buildinfo,.doctrees}
+  rm -rf $PKG/usr/doc/$PRGNAM-$VERSION/html/{.buildinfo,.doctrees,objects.inv}
 fi
 
 cp -aR \
