@@ -52,7 +52,7 @@ set -e
 rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
-
+rm -rf $PRGNAM-$PRGNAM-$VERSION
 tar xvf $CWD/$PRGNAM-$PRGNAM-$VERSION.tar.gz
 cd $PRGNAM-$PRGNAM-$VERSION
 mkdir -p $PKG/usr/bin $PKG/etc/$PRGNAM $PKG/usr/share/icons/oxygen/base/22x22/status
