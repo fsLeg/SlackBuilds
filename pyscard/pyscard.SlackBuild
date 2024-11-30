@@ -25,7 +25,7 @@
 cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=pyscard
-VERSION=${VERSION:-2.0.10}
+VERSION=${VERSION:-2.2.0}
 BUILD=${BUILD:-1}
 TAG=${TAG:-fsleg}
 PKGTYPE=${PKGTYPE:-txz}
@@ -75,14 +75,12 @@ mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
 
 # Build additional documentation
 if [ "${DOCS:-no}" != "no" ]; then
-  cd smartcard/doc
-  make html
-  cp -aR _build/html $PKG/usr/doc/$PRGNAM-$VERSION/
-  cd ../..
+  sphinx-build src/smartcard/doc $PKG/usr/doc/$PRGNAM-$VERSION/html
+  rm -rf $PKG/usr/doc/$PRGNAM-$VERSION/html/{.buildinfo,.doctrees}
 fi
 
 cp -aR \
-  ACKS ChangeLog LICENSE TODO README.md smartcard/Examples \
+  ACKS ChangeLog LICENSE TODO README.md src/smartcard/Examples \
   $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
