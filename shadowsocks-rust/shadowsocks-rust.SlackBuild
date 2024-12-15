@@ -3,8 +3,6 @@
 # Slackware build script for shadowsocks-rust
 
 # Copyright 2022-2024 Vladislav 'fsLeg' Borisov, Moscow, Russia
-# Parts with Cargo's offline building were taken from alacritty.SlackBuild
-# by Andrew Clemons, Tokyo Japan
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
@@ -101,29 +99,11 @@ registry = 'https://github.com/rust-lang/crates.io-index'
 replace-with = 'vendored-sources'
 
 [source.vendored-sources]
-directory = '$(pwd)/vendor'
+directory = 'vendor'
 EOF
 
 # Unpack crates and vendor them
-mkdir vendor
-(
-  cd vendor
-
-  for CRATE in ${CWD}/*.crate; do
-    CRATE_CHECKSUM=$(sha256sum ${CRATE} | cut -d' ' -f1)
-    tar xf ${CRATE}
-    cd $(basename ${CRATE%.crate})
-    touch .cargo-ok
-    JSON='{"files":{'
-    for FILE in $(find -type f | sed 's/\.\///g'); do
-      CHECKSUM=$(sha256sum ${FILE} | cut -d' ' -f1)
-      JSON="${JSON}\"${FILE}\":\"${CHECKSUM}\","
-    done
-    JSON="${JSON%,}},\"package\":\"${CRATE_CHECKSUM}\"}"
-    echo ${JSON} > .cargo-checksum.json
-    cd ..
-  done
-)
+python3 $CWD/mkvendor.py --directory $(pwd) --crates $CWD
 
 chown -R root:root .
 find -L . \
@@ -145,7 +125,7 @@ CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
 RUSTFLAGS="-C target-cpu=native" \
 CARGO_HOME=".cargo" \
-cargo build --offline --release 
+cargo build --offline --release
 make install DESTDIR=$PKG TARGET=release PREFIX=/usr/bin
 
 # Strip binaries and libraries
