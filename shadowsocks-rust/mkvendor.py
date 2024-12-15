@@ -3,7 +3,7 @@
 """
 A script to vendor Rust crates
 
-Copyright 2022-2024 Vladislav 'fsLeg' Borisov, Moscow, Russia
+Copyright 2024 Vladislav 'fsLeg' Borisov, Moscow, Russia
 All rights reserved.
 
 Redistribution and use of this script, with or without modification, is
