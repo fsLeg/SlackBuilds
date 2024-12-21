@@ -112,7 +112,7 @@ find -L . \
  \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
   -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
 
-# Use rust-opt instead of system rust
+# Use rust-opt instead of system rust if it's available
 export PATH="/opt/rust/bin:$PATH"
 if [ -z "$LD_LIBRARY_PATH" ]; then
   export LD_LIBRARY_PATH="/opt/rust/lib$LIBDIRSUFFIX"

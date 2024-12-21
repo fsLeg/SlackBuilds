@@ -34,24 +34,22 @@ import tarfile
 def createVendor(vendordir, cratedir):
     "We extract each crate, create an empty .cargo-ok file, calculate sha256 sum for every file inside the crate and crate file itself and put it into .cargo-checksum.json"
     crate_path = ""
-    crate_checksums = []
-    crate_files = []
+    crate_files, crate_checksums = [], []
     makedirs(vendordir, exist_ok=True)
     for crate in glob(f"{cratedir}/*.crate"):
         with tarfile.open(crate, 'r:*') as archive:
             archive.extractall(path=vendordir, filter='data')
-            crate_path = f"{vendordir}/{crate[crate.rfind('/')+1:].replace('.crate', '')}"
-            open(f"{crate_path}/.cargo-ok", "a").close()
-            for root, dirs, files in walk(f"{crate_path}"):
-                crate_files.extend(join(root, name) for name in files)
-            for file in crate_files:
-                with open(file, "rb") as opened_file:
-                    crate_checksums.append(sha256(opened_file.read()).hexdigest())
-            with open(f"{crate_path}/.cargo-checksum.json", "w") as crate_json:
-                with open(crate, 'rb') as crate_file:
-                    json.dump({"files": dict(zip([file.replace(f"{crate_path}/", "") for file in crate_files], crate_checksums)), "package": sha256(crate_file.read()).hexdigest()}, crate_json)
-            crate_files = []
-            crate_checksums = []
+        crate_path = f"{vendordir}/{crate[crate.rfind('/')+1:].replace('.crate', '')}"
+        open(f"{crate_path}/.cargo-ok", "a").close()
+        for root, dirs, files in walk(f"{crate_path}"):
+            crate_files.extend(join(root, name) for name in files)
+        for file in crate_files:
+            with open(file, "rb") as opened_file:
+                crate_checksums.append(sha256(opened_file.read()).hexdigest())
+        with open(f"{crate_path}/.cargo-checksum.json", "w") as crate_json:
+            with open(crate, 'rb') as crate_file:
+                json.dump({"files": dict(zip([file.replace(f"{crate_path}/", "") for file in crate_files], crate_checksums)), "package": sha256(crate_file.read()).hexdigest()}, crate_json)
+        crate_files, crate_checksums = [], []
 
 if __name__ == "__main__":
     import argparse
@@ -64,7 +62,4 @@ if __name__ == "__main__":
     parser.add_argument("-c", "--crates",    help="Directory with downloaded .crate files to vendor")
     args = parser.parse_args()
 
-    workdir = args.directory
-    cratedir = args.crates
-
-    createVendor(f"{workdir}/vendor", cratedir)
+    createVendor(f"{args.directory}/vendor", args.crates)

@@ -320,10 +320,7 @@ DOWNLOAD="https://github.com/shadowsocks/shadowsocks-rust/archive/v1.21.2/shadow
           https://static.crates.io/crates/serde_yaml/serde_yaml-0.9.34+deprecated.crate \
           https://static.crates.io/crates/sha1/sha1-0.10.6.crate \
           https://static.crates.io/crates/sha2/sha2-0.10.8.crate \
-          https://static.crates.io/crates/sha2/sha2-1.21.0.crate \
           https://static.crates.io/crates/shadowsocks-crypto/shadowsocks-crypto-0.5.5.crate \
-          https://static.crates.io/crates/shadowsocks-crypto/shadowsocks-crypto-1.21.2.crate \
-          https://static.crates.io/crates/shadowsocks-crypto/shadowsocks-crypto-1.21.2.crate \
           https://static.crates.io/crates/sharded-slab/sharded-slab-0.1.7.crate \
           https://static.crates.io/crates/shlex/shlex-1.3.0.crate \
           https://static.crates.io/crates/signal-hook-registry/signal-hook-registry-1.4.2.crate \
@@ -778,10 +775,7 @@ MD5SUM="0360ef67392ffbaa38ea53c76f323cd5 \
         39e3168b0ff2d77bcca05882310b2a06 \
         d7602381c0bc21d10603cc940a837b06 \
         289b776935f2184c6ba2974877285013 \
-        3172cc7eed7041f89d35715a93cac031 \
         cbac6a37ea78204d483d4d224de6ab90 \
-        7558b0d6a956faf7f1644b6fc7f53755 \
-        c2fdaa2514e053b8a3180b528724696e \
         96261f3cee18842060fd64d618e056d8 \
         6c623a8eed8450399ec323a72e96855c \
         a77d5770902a4260009320daafd1fff2 \
