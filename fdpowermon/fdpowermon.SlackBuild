@@ -2,7 +2,7 @@
 
 # Slackware build script for dart-sass
 
-# Copyright 2022-2024 Vladislav 'fsLeg' Borisov, Moscow, Russia
+# Copyright 2022-2025 Vladislav 'fsLeg' Borisov, Moscow, Russia
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
@@ -74,8 +74,7 @@ cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
 # Create and package the man page
 mkdir -p $PKG/usr/man/man1
-/usr/bin/pod2man < fdpowermon | gzip -9 -c > $PKG/usr/man/man1/fdpowermon.1.gz
-
+pod2man < fdpowermon | gzip -9 -c > $PKG/usr/man/man1/fdpowermon.1.gz
 
 # Copy the slack-desc into ./install
 mkdir -p $PKG/install

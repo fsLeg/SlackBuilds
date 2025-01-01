@@ -2,7 +2,7 @@
 
 # Slackware build script for pyotherside
 
-# Copyright 2023-2024 Vladislav 'fsLeg' Borisov, Moscow, Russia
+# Copyright 2023-2025 Vladislav 'fsLeg' Borisov, Moscow, Russia
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
@@ -29,11 +29,6 @@ VERSION=${VERSION:-1.6.1}
 BUILD=${BUILD:-1}
 TAG=${TAG:-fsleg}
 PKGTYPE=${PKGTYPE:-txz}
-
-# Use parallel building if possible
-if [ -z "$NUMJOBS" ]; then
-  NUMJOBS=$(nproc)
-fi
 
 if [ -z "$ARCH" ]; then
   case "$( uname -m )" in
@@ -85,7 +80,7 @@ find -L . \
 qmake
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
-make -j${NUMJOBS}
+make
 make install INSTALL_ROOT=$PKG
 rm -rf $PKG/usr/tests
 

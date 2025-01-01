@@ -2,7 +2,7 @@
 
 # Slackware build script for yubikey-manager-qt
 
-# Copyright 2023-2024 Vladislav 'fsLeg' Borisov, Moscow, Russia
+# Copyright 2023-2025 Vladislav 'fsLeg' Borisov, Moscow, Russia
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
@@ -29,11 +29,6 @@ VERSION=${VERSION:-1.2.6}
 BUILD=${BUILD:-2}
 TAG=${TAG:-fsleg}
 PKGTYPE=${PKGTYPE:-txz}
-
-# Use parallel building if possible
-if [ -z "$NUMJOBS" ]; then
-  NUMJOBS=$(nproc)
-fi
 
 if [ -z "$ARCH" ]; then
   case "$( uname -m )" in
@@ -89,7 +84,7 @@ patch -p1 < $CWD/363.patch
 qmake
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
-make -j${NUMJOBS}
+make
 make install INSTALL_ROOT=$PKG
 
 # Strip binaries and libraries
