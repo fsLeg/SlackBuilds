@@ -28,8 +28,8 @@ PRGNAM=yubioath-desktop
 TARNAM=yubico-authenticator
 VERSION=${VERSION:-7.1.1}
 BUILD=${BUILD:-1}
-TAG=${TAG:-fsleg}
-PKGTYPE=${PKGTYPE:-txz}
+TAG=${TAG:-_SBo}
+PKGTYPE=${PKGTYPE:-tgz}
 
 if [ -z "$ARCH" ]; then
   case "$( uname -m )" in

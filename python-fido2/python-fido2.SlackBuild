@@ -28,8 +28,8 @@ PRGNAM=python-fido2
 TARNAM=fido2
 VERSION=${VERSION:-1.2.0}
 BUILD=${BUILD:-1}
-TAG=${TAG:-fsleg}
-PKGTYPE=${PKGTYPE:-txz}
+TAG=${TAG:-_SBo}
+PKGTYPE=${PKGTYPE:-tgz}
 
 if [ -z "$ARCH" ]; then
   case "$( uname -m )" in
