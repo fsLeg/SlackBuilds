@@ -78,7 +78,6 @@ cd $TMP
 
 tar xvf $CWD/$PRGNAM-$VERSION-linux-$ARCHID.tar.gz
 cd $PRGNAM
-#mkdir -p $PKG/usr/bin $PKG/usr/lib$LIBDIRSUFFIX/$PRGNAM
 sed -i "s/\/src\//\/..\/lib$LIBDIRSUFFIX\/$PRGNAM\//g" sass
 install -D -t $PKG/usr/bin/ sass
 install -D -t $PKG/usr/lib$LIBDIRSUFFIX/$PRGNAM/ src/dart src/sass.snapshot
