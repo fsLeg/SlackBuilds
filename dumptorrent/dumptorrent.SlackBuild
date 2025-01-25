@@ -27,8 +27,8 @@ cd $(dirname $0) ; CWD=$(pwd)
 PRGNAM=dumptorrent
 VERSION=${VERSION:-1.2}
 BUILD=${BUILD:-1}
-TAG=${TAG:-fsleg}
-PKGTYPE=${PKGTYPE:-txz}
+TAG=${TAG:-_SBo}
+PKGTYPE=${PKGTYPE:-tgz}
 
 if [ -z "$ARCH" ]; then
   case "$( uname -m )" in
@@ -75,13 +75,13 @@ find -L . \
  \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
   -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
 
-make dumptorrent CFLAGS="${SLKCFLAGS}"
+make dumptorrent CFLAGS="$SLKCFLAGS"
 
 # There's no 'install' target and no documentation, so we just copy the binary
 # to a correct location and package it.
 
-mkdir -p ${PKG}/usr/bin
-install -Dm755 ./dumptorrent ${PKG}/usr/bin/
+mkdir -p $PKG/usr/bin
+install -Dm755 ./dumptorrent $PKG/usr/bin/
 
 # Strip binaries
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
