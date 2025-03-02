@@ -1,0 +1,137 @@
+#!/bin/bash
+
+# Slackware build script for Popcorn Time
+
+# Copyright 2025 Vladislav Borisov Moscow, Russia
+# All rights reserved.
+#
+# Redistribution and use of this script, with or without modification, is
+# permitted provided that the following conditions are met:
+#
+# 1. Redistributions of this script must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR IMPLIED
+#  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+#  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO
+#  EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+#  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+#  OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+#  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+#  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# TODO: look into prebuilds of bufferutil, utf-8-validate and utp-native
+# to possibly make this work on 32 bit systems
+
+cd $(dirname $0) ; CWD=$(pwd)
+
+PRGNAM=popcorntime
+TARNAM=popcorn-desktop
+VERSION=${VERSION:-0.5.1}
+BUILD=${BUILD:-1}
+TAG=${TAG:-fsleg}
+PKGTYPE=${PKGTYPE:-txz}
+
+if [ -z "$ARCH" ]; then
+  case "$( uname -m )" in
+    i?86) ARCH=i586 ;;
+    arm*) ARCH=arm ;;
+       *) ARCH=$( uname -m ) ;;
+  esac
+fi
+
+# If the variable PRINT_PACKAGE_NAME is set, then this script will report what
+# the name of the created package would be, and then exit. This information
+# could be useful to other scripts.
+if [ ! -z "${PRINT_PACKAGE_NAME}" ]; then
+  echo "$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE"
+  exit 0
+fi
+
+TMP=${TMP:-/tmp/SBo}
+PKG=$TMP/package-$PRGNAM
+OUTPUT=${OUTPUT:-/tmp}
+
+if [ "$ARCH" = "x86_64" ]; then
+  BITS="64"
+  LONGBITS="x64"
+else
+  echo "Only x86_64 platform is supported."
+  exit 1
+fi
+
+set -e
+
+rm -rf $PKG
+mkdir -p $TMP $PKG $OUTPUT
+cd $TMP
+rm -rf $TARNAM-$VERSION
+tar xvf $CWD/$TARNAM-$VERSION.tar.gz
+cd $TARNAM-$VERSION
+
+# Unpack vendored sources
+tar xfv $CWD/$PRGNAM-$VERSION-vendored-sources.tar
+mkdir -p cache/0.86.0-sdk
+tar xf $CWD/nwjs-sdk-v0.86.0-linux-$LONGBITS.tar.gz -C cache/0.86.0-sdk
+mv cache/0.86.0-sdk/nwjs-sdk-v0.86.0-linux-$LONGBITS cache/0.86.0-sdk/linux$BITS
+
+chown -R root:root .
+find -L . \
+ \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
+  -o -perm 511 \) -exec chmod 755 {} \; -o \
+ \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
+  -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
+
+# Fix libatomic.so copying
+# https://aur.archlinux.org/cgit/aur.git/tree/copy-libatomic_fixes.patch?h=popcorntime
+patch -p1 < $CWD/yarn_lock-fixes.patch
+
+# Patch a proper github url
+# https://aur.archlinux.org/cgit/aur.git/tree/yarn_lock-fixes.patch?h=popcorntime
+patch -p1 < $CWD/copy-libatomic_fixes.patch
+
+# Make yarn use vendored sources
+export YARN_YARN_OFFLINE_MIRROR="./vendor"
+
+yarn install --ignore-engines --frozen-lockfile --offline
+yarn build
+
+# Fix permissions
+find build/Popcorn-Time/linux64 -type f -perm -u+r -exec chmod a+r {} \;
+find build/Popcorn-Time/linux64 -type f -perm -u+x -exec chmod a+x {} \;
+find build/Popcorn-Time/linux64 -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
+  | cut -f 1 -d : | xargs chmod a+x 2> /dev/null || true
+
+# Move binaries
+mkdir -p $PKG/opt
+cp -aR build/Popcorn-Time/linux$BITS $PKG/opt/$PRGNAM
+
+# Strip binaries and libraries
+find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
+  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
+
+mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a build/Popcorn-Time/linux$BITS/{CHANGELOG.md,LICENSE.txt,README.md,credits.html} $PKG/usr/doc/$PRGNAM-$VERSION/
+cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
+
+# Copy .desktop file and make icons for it
+mkdir -p $PKG/usr/share/applications
+install -Dm644 dist/linux/appimage/Popcorn-Time.desktop $PKG/usr/share/applications/
+for geometry in 16x16 24x24 32x32 48x48 64x64 96x96 128x128 256x256; do
+  mkdir -p $PKG/usr/share/icons/hicolor/$geometry/apps
+  magick dist/linux/appimage/Popcorn-Time.png -resize $geometry $PKG/usr/share/icons/hicolor/$geometry/apps/Popcorn-Time.png
+done
+
+# Make a symlink
+mkdir -p $PKG/usr/bin
+ln -s /opt/$PRGNAM/Popcorn-Time $PKG/usr/bin/
+
+# Copy the slack-desc into ./install
+mkdir -p $PKG/install
+cat $CWD/slack-desc > $PKG/install/slack-desc
+cat $CWD/doinst.sh > $PKG/install/doinst.sh
+
+cd $PKG
+/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE
