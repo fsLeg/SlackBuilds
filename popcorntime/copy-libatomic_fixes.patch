@@ -36,6 +36,6 @@ index 19f6cebfd..59574ef01 100755
 +  read source <<< `readlink -f /usr/lib64/libatomic.so.*`
  else
 -  read source <<< `readlink -f /usr/lib/i386*/libatomic.so.*`
-+  read source <<< `readlink -f /usr/lib32/libatomic.so.*`
++  read source <<< `readlink -f /usr/lib/libatomic.so.*`
  fi
  cp $source "$outDir/lib/libatomic.so.1"

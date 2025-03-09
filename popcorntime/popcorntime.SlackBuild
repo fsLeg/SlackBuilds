@@ -22,9 +22,6 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# TODO: look into prebuilds of bufferutil, utf-8-validate and utp-native
-# to possibly make this work on 32 bit systems
-
 cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=popcorntime
@@ -54,11 +51,16 @@ TMP=${TMP:-/tmp/SBo}
 PKG=$TMP/package-$PRGNAM
 OUTPUT=${OUTPUT:-/tmp}
 
-if [ "$ARCH" = "x86_64" ]; then
+if [ "$ARCH" = "i586" ]; then
+  BITS="32"
+  PLATFORM="ia32"
+  NWVER="0.44.5"
+elif [ "$ARCH" = "x86_64" ]; then
   BITS="64"
-  LONGBITS="x64"
+  PLATFORM="x64"
+  NWVER="0.86.0"
 else
-  echo "Only x86_64 platform is supported."
+  echo "Only i586 and x86_64 architectures are supported."
   exit 1
 fi
 
@@ -73,9 +75,9 @@ cd $TARNAM-$VERSION
 
 # Unpack vendored sources
 tar xfv $CWD/$PRGNAM-$VERSION-vendored-sources.tar
-mkdir -p cache/0.86.0-sdk
-tar xf $CWD/nwjs-sdk-v0.86.0-linux-$LONGBITS.tar.gz -C cache/0.86.0-sdk
-mv cache/0.86.0-sdk/nwjs-sdk-v0.86.0-linux-$LONGBITS cache/0.86.0-sdk/linux$BITS
+mkdir -p cache/$NWVER-sdk
+tar xf $CWD/nwjs-sdk-v$NWVER-linux-$PLATFORM.tar.gz -C cache/$NWVER-sdk
+mv cache/$NWVER-sdk/nwjs-sdk-v$NWVER-linux-$PLATFORM cache/$NWVER-sdk/linux$BITS
 
 chown -R root:root .
 find -L . \
@@ -86,22 +88,21 @@ find -L . \
 
 # Fix libatomic.so copying
 # https://aur.archlinux.org/cgit/aur.git/tree/copy-libatomic_fixes.patch?h=popcorntime
-patch -p1 < $CWD/yarn_lock-fixes.patch
-
-# Patch a proper github url
-# https://aur.archlinux.org/cgit/aur.git/tree/yarn_lock-fixes.patch?h=popcorntime
 patch -p1 < $CWD/copy-libatomic_fixes.patch
 
-# Make yarn use vendored sources
-export YARN_YARN_OFFLINE_MIRROR="./vendor"
+# Use a proper nwjs version
+sed -i "s|\(const defaultNwVersion = '\)[0-9.]\+|\1${NWVER}|" gulpfile.js
 
+# Make yarn use vendored sources and system node.js headers
+YARN_YARN_OFFLINE_MIRROR="./vendor" \
+npm_config_nodedir="/usr" \
 yarn install --ignore-engines --frozen-lockfile --offline
-yarn build
+yarn build --offline
 
 # Fix permissions
-find build/Popcorn-Time/linux64 -type f -perm -u+r -exec chmod a+r {} \;
-find build/Popcorn-Time/linux64 -type f -perm -u+x -exec chmod a+x {} \;
-find build/Popcorn-Time/linux64 -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
+find build/Popcorn-Time/linux$BITS -type f -perm -u+r -exec chmod a+r {} \;
+find build/Popcorn-Time/linux$BITS -type f -perm -u+x -exec chmod a+x {} \;
+find build/Popcorn-Time/linux$BITS -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs chmod a+x 2> /dev/null || true
 
 # Move binaries
