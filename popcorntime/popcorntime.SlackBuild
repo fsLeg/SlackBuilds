@@ -2,7 +2,7 @@
 
 # Slackware build script for Popcorn Time
 
-# Copyright 2025 Vladislav Borisov Moscow, Russia
+# Copyright 2025 Vladislav 'fsleg' Borisov, Moscow, Russia
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
@@ -28,8 +28,8 @@ PRGNAM=popcorntime
 TARNAM=popcorn-desktop
 VERSION=${VERSION:-0.5.1}
 BUILD=${BUILD:-1}
-TAG=${TAG:-fsleg}
-PKGTYPE=${PKGTYPE:-txz}
+TAG=${TAG:-_SBo}
+PKGTYPE=${PKGTYPE:-tgz}
 
 if [ -z "$ARCH" ]; then
   case "$( uname -m )" in
@@ -52,15 +52,22 @@ PKG=$TMP/package-$PRGNAM
 OUTPUT=${OUTPUT:-/tmp}
 
 if [ "$ARCH" = "i586" ]; then
+  SLKCFLAGS="-O2 -march=i586 -mtune=i686"
+  BITS="32"
+  PLATFORM="ia32"
+  NWVER="0.44.5"
+elif [ "$ARCH" = "i686" ]; then
+  SLKCFLAGS="-O2 -march=i686 -mtune=i686"
   BITS="32"
   PLATFORM="ia32"
   NWVER="0.44.5"
 elif [ "$ARCH" = "x86_64" ]; then
+  SLKCFLAGS="-O2 -fPIC"
   BITS="64"
   PLATFORM="x64"
   NWVER="0.86.0"
 else
-  echo "Only i586 and x86_64 architectures are supported."
+  echo "Only x86 and x86_64 architectures are supported."
   exit 1
 fi
 
@@ -96,6 +103,8 @@ sed -i "s|\(const defaultNwVersion = '\)[0-9.]\+|\1${NWVER}|" gulpfile.js
 # Make yarn use vendored sources and system node.js headers
 YARN_YARN_OFFLINE_MIRROR="./vendor" \
 npm_config_nodedir="/usr" \
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
 yarn install --ignore-engines --frozen-lockfile --offline
 yarn build --offline
 
