@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Slackware build script for Popcorn Time
+# Slackware build script for popcorntime
 
 # Copyright 2025 Vladislav 'fsleg' Borisov, Moscow, Russia
 # All rights reserved.
@@ -100,13 +100,17 @@ patch -p1 < $CWD/copy-libatomic_fixes.patch
 # Use a proper nwjs version
 sed -i "s|\(const defaultNwVersion = '\)[0-9.]\+|\1${NWVER}|" gulpfile.js
 
-# Make yarn use vendored sources and system node.js headers
 YARN_YARN_OFFLINE_MIRROR="./vendor" \
+YARN_CACHE_FOLDER="./cache" \
+npm_config_cache="./cache" \
 npm_config_nodedir="/usr" \
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
 yarn install --ignore-engines --frozen-lockfile --offline
-yarn build --offline
+
+YARN_CACHE_FOLDER="./cache" \
+npm_config_cache="./cache" \
+yarn build --no-update-notifier
 
 # Fix permissions
 find build/Popcorn-Time/linux$BITS -type f -perm -u+r -exec chmod a+r {} \;
