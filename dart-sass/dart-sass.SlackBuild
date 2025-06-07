@@ -98,9 +98,6 @@ EOF
 chmod +x $PKG/usr/bin/sass
 install -D -t $PKG/usr/lib$LIBDIRSUFFIX/$PRGNAM/ build/sass.snapshot-$ARCH
 
-find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
-  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
-
 # Copy program license into the package
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
 cp -a README.md AUTHORS CHANGELOG.md CONTRIBUTING.md LICENSE $PKG/usr/doc/$PRGNAM-$VERSION/
