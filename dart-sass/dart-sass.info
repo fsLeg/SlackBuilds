@@ -1,10 +1,14 @@
 PRGNAM="dart-sass"
-VERSION="1.89.0"
+VERSION="1.89.1"
 HOMEPAGE="https://sass-lang.com/dart-sass"
-DOWNLOAD="https://github.com/sass/dart-sass/releases/download/1.89.0/dart-sass-1.89.0-linux-ia32.tar.gz"
-MD5SUM="08337fc37bacfa3571fb4200ca3fa421"
-DOWNLOAD_x86_64="https://github.com/sass/dart-sass/releases/download/1.89.0/dart-sass-1.89.0-linux-x64.tar.gz"
-MD5SUM_x86_64="efc76aaff676468524c7195dbc389675"
-REQUIRES=""
+DOWNLOAD="https://github.com/sass/dart-sass/archive/1.89.1/dart-sass-1.89.1.tar.gz \
+          https://github.com/sass/sass/archive/embedded-protocol-3.2.0/sass-embedded-protocol-3.2.0.tar.gz \
+          https://sbo.t-rg.ws/dart-sass-1.89.1-vendored-sources.tar.xz"
+MD5SUM="92cd7b10534e8f90fa6e376ae5b82119 \
+        8e912eeb9663ae70360cd7c8a36ded06 \
+        133204af5137e3177ebca25b2b96aa50"
+DOWNLOAD_x86_64=""
+MD5SUM_x86_64=""
+REQUIRES="dart-sdk buf"
 MAINTAINER="Vladislav 'fsLeg' Borisov"
 EMAIL="fsleg@t-rg.ws"
