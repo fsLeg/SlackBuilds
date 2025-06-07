@@ -29,6 +29,7 @@ VERSION=${VERSION:-1.89.1}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
 PKGTYPE=${PKGTYPE:-tgz}
+EMBEDDED_PROTOCOL_VERSION=3.2.0
 
 if [ -z "$ARCH" ]; then
   case "$( uname -m )" in
@@ -50,6 +51,12 @@ TMP=${TMP:-/tmp/SBo}
 PKG=$TMP/package-$PRGNAM
 OUTPUT=${OUTPUT:-/tmp}
 
+if [ "$ARCH" = "x86_64" -o "$ARCH" = "aarch64" ]; then
+  LIBDIRSUFFIX="64"
+else
+  LIBDIRSUFFIX=""
+fi
+
 set -e
 
 rm -rf $PKG $TMP/$PRGNAM-$VERSION
@@ -66,21 +73,33 @@ find -L $PKG \
  -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
 
 tar xvf $CWD/$PRGNAM-$VERSION-vendored-sources.tar.xz
-tar xvf $CWD/sass-embedded-protocol-3.2.0.tar.gz
+tar xvf $CWD/sass-embedded-protocol-$EMBEDDED_PROTOCOL_VERSION.tar.gz
 mkdir -p build
-mv sass-embedded-protocol-3.2.0 build/language
+mv sass-embedded-protocol-$EMBEDDED_PROTOCOL_VERSION build/language
 export PUB_CACHE=vendor/pub-cache
 dart --disable-analytics
 dart pub get --offline
 UPDATE_SASS_PROTOCOL=false dart run grinder protobuf
-dart compile exe \
+
+dart \
     -Dversion=$VERSION \
-    -Dprotocol-version=$(cat build/language/spec/EMBEDDED_PROTOCOL_VERSION) \
-    -o sass \
+    -Ddart-version=$(dart --version | cut -d' ' -f4) \
+    -Dprotocol-version=$EMBEDDED_PROTOCOL_VERSION \
+    -Dcompiler-version=$VERSION \
+    --snapshot=build/sass.snapshot-$ARCH \
     bin/sass.dart
 
-# The binary must be left unstripped
-install -vDm755 -t "$PKG/usr/bin" sass
+mkdir -p $PKG/usr/bin $PKG/usr/lib$LIBDIRSUFFIX/$PRGNAM
+cat <<EOF > $PKG/usr/bin/sass
+#!/bin/bash
+exec $(which dart) /usr/lib$LIBDIRSUFFIX/$PRGNAM/sass.snapshot-$ARCH "\$@"
+EOF
+
+chmod +x $PKG/usr/bin/sass
+install -D -t $PKG/usr/lib$LIBDIRSUFFIX/$PRGNAM/ build/sass.snapshot-$ARCH
+
+find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
+  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
 # Copy program license into the package
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
