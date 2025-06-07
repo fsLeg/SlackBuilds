@@ -78,6 +78,7 @@ CGO_CPPFLAGS="${SLKCFLAGS}" \
 CGO_CFLAGS="${SLKCFLAGS}" \
 CGO_CXXFLAGS="${SLKCFLAGS}" \
 GOPATH=$(pwd)/cache \
+GOCACHE=$(pwd)/cache \
 go build -v \
   -buildmode=pie \
   -mod=readonly \

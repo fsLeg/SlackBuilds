@@ -79,7 +79,10 @@ mv sass-embedded-protocol-$EMBEDDED_PROTOCOL_VERSION build/language
 export PUB_CACHE=vendor/pub-cache
 dart --disable-analytics
 dart pub get --offline
-UPDATE_SASS_PROTOCOL=false dart run grinder protobuf
+
+UPDATE_SASS_PROTOCOL=false \
+BUF_CACHE_DIR=cache \
+dart run grinder protobuf
 
 dart \
     -Dversion=$VERSION \
