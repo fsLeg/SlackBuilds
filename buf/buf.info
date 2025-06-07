@@ -7,6 +7,6 @@ MD5SUM="2869866e74036e973a60cd782f4fd178 \
         89084ec201a2af87f60968e297609d18"
 DOWNLOAD_x86_64=""
 MD5SUM_x86_64=""
-REQUIRES=""
+REQUIRES="google-go-lang"
 MAINTAINER="Vladislav 'fsLeg' Borisov"
 EMAIL="fsleg@t-rg.ws"
