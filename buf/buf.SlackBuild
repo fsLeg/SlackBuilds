@@ -28,7 +28,7 @@ PRGNAM=buf
 VERSION=${VERSION:-1.54.0}
 BUILD=${BUILD:-1}
 TAG=${TAG:-fsleg}
-PKGTYPE=${PKGTYPE:-tgz}
+PKGTYPE=${PKGTYPE:-txz}
 
 if [ -z "$ARCH" ]; then
   case "$( uname -m )" in
@@ -70,9 +70,9 @@ cd $TMP
 rm -rf $PRGNAM-$VERSION
 tar xvf $CWD/$PRGNAM-$VERSION.tar.gz
 cd $PRGNAM-$VERSION
+tar xf $CWD/$PRGNAM-$VERSION-vendored-sources.tar.xz
 chown -R root:root .
 
-tar xf $CWD/$PRGNAM-$VERSION-vendored-sources.tar.xz
 mkdir build
 CGO_CPPFLAGS="${SLKCFLAGS}" \
 CGO_CFLAGS="${SLKCFLAGS}" \
@@ -94,8 +94,8 @@ go build -v \
 mkdir -p build/manpages
 ./build/buf manpages build/manpages
 
-install -vDm755 -t "$PKG/usr/bin" build/{buf,protoc-gen-buf-lint,protoc-gen-buf-breaking}
-install -vDm644 -t "$PKG/usr/man/man1" build/manpages/*
+install -Dm755 -t "$PKG/usr/bin" build/{buf,protoc-gen-buf-lint,protoc-gen-buf-breaking}
+install -Dm644 -t "$PKG/usr/man/man1" build/manpages/*
 
 # Strip binaries and libraries
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \

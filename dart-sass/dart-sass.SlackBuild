@@ -28,7 +28,7 @@ PRGNAM="dart-sass"
 VERSION=${VERSION:-1.89.2}
 BUILD=${BUILD:-1}
 TAG=${TAG:-fsleg}
-PKGTYPE=${PKGTYPE:-tgz}
+PKGTYPE=${PKGTYPE:-txz}
 EMBEDDED_PROTOCOL_VERSION=3.2.0
 
 if [ -z "$ARCH" ]; then
@@ -99,11 +99,12 @@ exec $(which dart) /usr/lib$LIBDIRSUFFIX/$PRGNAM/sass.snapshot-$ARCH "\$@"
 EOF
 
 chmod +x $PKG/usr/bin/sass
-install -D -t $PKG/usr/lib$LIBDIRSUFFIX/$PRGNAM/ build/sass.snapshot-$ARCH
+install -Dm644 -t $PKG/usr/lib$LIBDIRSUFFIX/$PRGNAM/ build/sass.snapshot-$ARCH
 
 # Copy program license into the package
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cp -a README.md AUTHORS CHANGELOG.md CONTRIBUTING.md LICENSE $PKG/usr/doc/$PRGNAM-$VERSION/
+cp -a README.md AUTHORS CHANGELOG.md CONTRIBUTING.md LICENSE \
+  $PKG/usr/doc/$PRGNAM-$VERSION/
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
 mkdir -p $PKG/install

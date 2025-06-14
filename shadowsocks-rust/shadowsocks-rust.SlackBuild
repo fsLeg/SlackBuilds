@@ -105,7 +105,7 @@ CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
 RUSTFLAGS="-C target-cpu=native" \
 CARGO_HOME=".cargo" \
-cargo build --offline --release
+cargo build --frozen --release
 make install DESTDIR=$PKG TARGET=release PREFIX=/usr/bin
 
 # Strip binaries and libraries
