@@ -25,4 +25,4 @@ amneziawg-tools to configure your WireGuard tunnels.
 
 To build the package for a kernel different from the running one,
 start the script setting the KERNEL variable as in
-  KERNEL=5.15.186 ./amneziawg-kernel.SlackBuild
+  KERNEL=5.15.187 ./amneziawg-kernel.SlackBuild

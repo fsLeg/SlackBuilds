@@ -20,5 +20,5 @@ Features of AmneziaWG include:
 - Undetectable by DPI analysis systems, resistant to blocking.
 - Operates over the UDP network protocol.
 
-This supplies the userspace version of AmneziaWG. You may use
+This supplies the userspace implementation of AmneziaWG. You may use
 amneziawg-tools to configure your WireGuard tunnels.
