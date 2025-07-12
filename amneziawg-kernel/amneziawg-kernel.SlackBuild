@@ -47,7 +47,7 @@ fi
 # the name of the created package would be, and then exit. This information
 # could be useful to other scripts.
 if [ ! -z "${PRINT_PACKAGE_NAME}" ]; then
-  echo "$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE"
+  echo "$PRGNAM-$PKGVER-$ARCH-$BUILD$TAG.$PKGTYPE"
   exit 0
 fi
 
@@ -88,6 +88,7 @@ ln -s $(readlink -f $KERNELSRCDIR) kernel
 
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
+KERNELRELEASE=$KERNEL \
 make
 install -Dm644 -t $PKG/lib/modules/$KERNEL/extra amneziawg.ko
 cd ..
