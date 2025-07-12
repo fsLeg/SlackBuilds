@@ -15,3 +15,6 @@ letting it work with formats like DICOM.
 It comes with bindings for C, C++, and the command-line.
 
 To build HTML documentation use DOCS=yes. This requires gi-docgen.
+
+Optional dependencies are (autodetected): libspng, highway, matio,
+libjxl and libheif.
