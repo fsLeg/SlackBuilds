@@ -30,12 +30,8 @@ BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
 PKGTYPE=${PKGTYPE:-tgz}
 
-# It's a Perl script, so arch doesn't matter
 ARCH="noarch"
 
-# If the variable PRINT_PACKAGE_NAME is set, then this script will report what
-# the name of the created package would be, and then exit. This information
-# could be useful to other scripts.
 if [ ! -z "${PRINT_PACKAGE_NAME}" ]; then
   echo "$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE"
   exit 0
@@ -44,8 +40,6 @@ fi
 TMP=${TMP:-/tmp/SBo}
 PKG=$TMP/package-$PRGNAM
 OUTPUT=${OUTPUT:-/tmp}
-
-# This is just a repackaging of a script, no compilation is needed
 
 set -e
 
@@ -66,17 +60,14 @@ find -L $PKG \
  \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
  -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
 
-# Copy program documentation and the SlackBuild into the package
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION/examples
 cp -a debian/copyright debian/changelog README.md $PKG/usr/doc/$PRGNAM-$VERSION/
 cp -a theme.pl $PKG/usr/doc/$PRGNAM-$VERSION/examples/
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
-# Create and package the man page
 mkdir -p $PKG/usr/man/man1
 pod2man < fdpowermon | gzip -9 -c > $PKG/usr/man/man1/fdpowermon.1.gz
 
-# Copy the slack-desc into ./install
 mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc
 

@@ -38,9 +38,6 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-# If the variable PRINT_PACKAGE_NAME is set, then this script will report what
-# the name of the created package would be, and then exit. This information
-# could be useful to other scripts.
 if [ ! -z "${PRINT_PACKAGE_NAME}" ]; then
   echo "$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE"
   exit 0
@@ -60,8 +57,6 @@ TMP=${TMP:-/tmp/SBo}
 PKG=$TMP/package-$PRGNAM
 OUTPUT=${OUTPUT:-/tmp}
 
-# saflashplayer is a standalone static binary, so no compilation is needed
-
 set -e
 
 rm -rf $PKG
@@ -72,8 +67,6 @@ tar xvf $CWD/flash_player_sa_linux.x86_64.tar.gz
 mkdir -p $PKG/usr/bin $PKG/usr/share/applications
 mv flashplayer $PKG/usr/bin/saflashplayer
 cp -a $CWD/saflashplayer.desktop $PKG/usr/share/applications/com.adobe.flashplayer.desktop
-
-# Stripping the binary causes it to segfault
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
 cp -aR LGPL license.pdf $PKG/usr/doc/$PRGNAM-$VERSION/
