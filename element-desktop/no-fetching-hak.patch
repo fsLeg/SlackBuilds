@@ -1,0 +1,11 @@
+--- a/scripts/hak/fetch.ts	2025-07-30 17:41:30.000000000 +0300
++++ b/scripts/hak/fetch.ts	2025-08-10 20:00:44.506272030 +0300
+@@ -31,7 +31,7 @@
+     });
+ 
+     console.log("Running yarn install in " + moduleInfo.moduleBuildDir);
+-    await hakEnv.spawn("yarn", ["install", "--ignore-scripts"], {
++    await hakEnv.spawn("yarn", ["install", "--offline", "--ignore-scripts"], {
+         cwd: moduleInfo.moduleBuildDir,
+     });
+ 

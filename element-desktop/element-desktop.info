@@ -1,0 +1,12 @@
+PRGNAM="element-desktop"
+VERSION="1.11.108"
+HOMEPAGE="https://element.io/"
+DOWNLOAD="UNSUPPORTED"
+MD5SUM=""
+DOWNLOAD_x86_64="https://github.com/element-hq/element-desktop/archive/v1.11.108/element-desktop-1.11.108.tar.gz \
+                 https://github.com/element-hq/element-web/archive/v1.11.108/element-web-1.11.108.tar.gz"
+MD5SUM_x86_64="c9f703e2983abf98cdc9172dd046da85 \
+               72560cdea08e8ab4fd1745ac8d96e1d8"
+REQUIRES="sqlcipher yarn rust-opt"
+MAINTAINER="Vladislav 'fsLeg' Borisov"
+EMAIL="fsleg@t-rg.ws"
