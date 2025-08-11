@@ -67,17 +67,22 @@ fi
 
 set -e
 
-RUST_PLATFORM=$(rustc -Vv | awk '/host/ {print $2}')
-
 export PATH="/opt/rust/bin:$PATH"
 if [ -z "$LD_LIBRARY_PATH" ]; then
   export LD_LIBRARY_PATH="/opt/rust/lib$LIBDIRSUFFIX"
 else
   export LD_LIBRARY_PATH="/opt/rust/lib$LIBDIRSUFFIX:$LD_LIBRARY_PATH"
 fi
+
+BASE_TMP_DIR=$TMP/$PRGNAM-$VERSION
+export YARN_YARN_OFFLINE_MIRROR=$BASE_TMP_DIR/vendor
+export YARN_CACHE_FOLDER=$BASE_TMP_DIR/cache
+export npm_config_cache=$YARN_CACHE_FOLDER
+export npm_config_nodedir=/usr
+export XDG_CACHE_HOME=$BASE_TMP_DIR/electron-cache
+export CARGO_HOME=$BASE_TMP_DIR/cargo
 export CFLAGS="$SLKCFLAGS"
 export CXXFLAGS="$SLKCFLAGS"
-export npm_config_nodedir="/usr"
 
 rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
@@ -85,7 +90,7 @@ cd $TMP
 rm -rf $PRGNAM-$VERSION $WEBNAM-$VERSION
 tar xvf $CWD/$PRGNAM-$VERSION.tar.gz
 tar xvf $CWD/$WEBNAM-$VERSION.tar.gz
-tar xvf $CWD/$PRGNAM-$VERSION-vendored-sources.tar
+tar xvf $CWD/$PRGNAM-$VERSION-vendored-sources.tar.xz
 
 cd $WEBNAM-$VERSION
 chown -R root:root .
@@ -95,14 +100,15 @@ find -L . \
  \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
   -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
 
-YARN_CACHE_FOLDER="$(pwd)/cache" \
-YARN_YARN_OFFLINE_MIRROR="$(pwd)/vendor" \
-yarn install --frozen-lockfile --ignore-engines --no-fund --update-checksums --offline
+yarn install --frozen-lockfile \
+             --ignore-engines \
+             --no-fund \
+             --update-checksums \
+             --offline
 sed -i 's|yarn |yarn --offline |g' package.json
 VERSION=$VERSION \
-YARN_CACHE_FOLDER="$(pwd)/cache" \
-npm_config_cache="$(pwd)/cache"
   yarn --offline build
+yarn --offline cache clean
 
 cd ../$PRGNAM-$VERSION
 chown -R root:root .
@@ -112,24 +118,24 @@ find -L . \
  \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
   -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
 
-export YARN_CACHE_FOLDER="$(pwd)/cache"
-export YARN_YARN_OFFLINE_MIRROR="$(pwd)/vendor"
-export npm_config_cache="$(pwd)/cache"
-export XDG_CACHE_HOME=$YARN_CACHE_FOLDER
+# fix autolaunch
 # https://gitlab.archlinux.org/archlinux/packaging/packages/element.io/-/blob/main/autolaunch.patch
 patch -p1 < $CWD/autolaunch.patch
+# use vendored hak
 patch -p1 < $CWD/no-fetching-hak.patch
-sed -i 's|"target": "deb"|"target": "dir"|' package.json
+# disable autoupdate
 sed -i 's|"https://packages.element.io/desktop/update/"|null|' element.io/release/config.json
+
 mkdir -p deploys
 mv ../$WEBNAM-$VERSION/webapp deploys/element-v$VERSION
-yarn install --frozen-lockfile --ignore-engines --no-fund --update-checksums --offline
+yarn install --frozen-lockfile \
+             --ignore-engines \
+             --no-fund \
+             --update-checksums \
+             --offline
 sed -i 's|yarn |yarn --offline |g' package.json
-#sed -i 's|yarn \-\-offline run hak|yarn run hak|' package.json
 yarn --offline run fetch --noverify --cfgdir ""
 RUSTFLAGS="-C target-cpu=native" \
-CARGO_HOME="$TMP/$PRGNAM-$VERSION/.hak/matrix-seshat/$RUST_PLATFORM/build/.cargo" \
-YARN_YARN_OFFLINE_MIRROR="$TMP/$PRGNAM-$VERSION/.hak/matrix-seshat/$RUST_PLATFORM/build/yarn-vendor" \
   yarn --offline run build:native
 # electron-builder fails if it can't upload the artifact to GitHub for which it requires a GitHub Token
 # all building is done by that point, so we just continue with packaging
@@ -142,8 +148,7 @@ find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | gr
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
 install -Dm644 $CWD/element-desktop.desktop $PKG/usr/share/applications/io.element.Element.desktop
-install -Dm755 $CWD/element-desktop.sh $PKG/usr/bin/element-desktop
-sed -i "s|@LIBDIRSUFFIX@|$LIBDIRSUFFIX|" $PKG/usr/bin/element-desktop
+ln -s /usr/lib$LIBDIRSUFFIX/element-desktop/element-desktop $PKG/usr/bin/
 
 # 32x32 icon is missing for some reason
 magick build/icons/512x512.png -resize 32x32 build/icons/32x32.png
