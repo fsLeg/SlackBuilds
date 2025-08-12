@@ -8,7 +8,7 @@ DOWNLOAD_x86_64="https://github.com/element-hq/element-desktop/archive/v1.11.109
                  https://sbo.t-rg.ws/element-desktop-1.11.109-vendored-sources.tar.xz"
 MD5SUM_x86_64="6576a1b4744c93cdbf9251ab5922520d \
                5fb3f964d74ce3d333a41b9e50a4400d \
-               8ce93f9cae8253a4edf8e3935902379d"
+               62581a7019885b60abd89e37f738a598"
 REQUIRES="sqlcipher yarn rust-opt"
 MAINTAINER="Vladislav 'fsLeg' Borisov"
 EMAIL="fsleg@t-rg.ws"

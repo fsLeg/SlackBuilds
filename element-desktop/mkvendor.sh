@@ -95,6 +95,7 @@ yarn install --frozen-lockfile \
              --no-fund \
              --update-checksums
 yarn cache clean
+rm -r node_modules
 
 ## native extensions
 cat << EOF >> Cargo.toml
