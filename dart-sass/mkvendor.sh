@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/bin/sh
 
 set -e
 
 CWD="$(pwd)"
 TMP="${TMP:-$(mktemp -d)}"
-source "$CWD/dart-sass.info"
+. "$CWD/dart-sass.info"
 OUTPUT="${OUTPUT:-$CWD}"
 export PUB_CACHE="$TMP/vendor/pub-cache"
 

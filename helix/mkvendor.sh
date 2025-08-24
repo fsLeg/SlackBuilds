@@ -4,9 +4,9 @@ set -e
 
 CWD=$(pwd)
 TMP=$(mktemp -d)
-source $CWD/helix.info
-OUTPUT=${OUTPUT:-$CWD}
-export CARGO_HOME=$TMP
+. "$CWD/helix.info"
+OUTPUT="${OUTPUT:-$CWD}"
+export CARGO_HOME="$TMP"
 
 export PATH="/opt/rust/bin:$PATH"
 if [ -z "$LD_LIBRARY_PATH" ]; then
@@ -15,9 +15,9 @@ else
   export LD_LIBRARY_PATH="/opt/rust/lib64:$LD_LIBRARY_PATH"
 fi
 
-mkdir -p $TMP/$PRGNAM-$VERSION
-tar xf $CWD/$PRGNAM-$VERSION-source.tar.xz -C $TMP/$PRGNAM-$VERSION
-cd $TMP/$PRGNAM-$VERSION
+mkdir -p "$TMP/$PRGNAM-$VERSION"
+tar xf "$CWD/$PRGNAM-$VERSION-source.tar.xz" -C "$TMP/$PRGNAM-$VERSION"
+cd "$TMP/$PRGNAM-$VERSION"
 
 # configure cargo-vendor-filterer
 # the [package] definition and existing src/main.rs file are required for vendoring to work
@@ -45,7 +45,7 @@ replace-with = "vendored-sources"
 directory = "vendor"
 EOF
 
-tar cfJ $OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz .cargo/ vendor/
+tar cfJ "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz" .cargo/ vendor/
 
-cd $CWD
-rm -rf $TMP
+cd "$CWD"
+rm -rf "$TMP"

@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/bin/sh
 
 set -e
 
 CWD="$(pwd)"
 TMP="${TMP:-$(mktemp -d)}"
-source "$CWD/shadowsocks-rust.info"
+. "$CWD/shadowsocks-rust.info"
 OUTPUT="${OUTPUT:-$CWD}"
 export CARGO_HOME="$TMP"
 

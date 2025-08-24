@@ -1,15 +1,15 @@
-#!/bin/bash
+#!/bin/sh
 
 set -e
 
-if [ ! -x "$(which jq)" -o ! -x "$(which 7z)" ]; then
+if [ ! -x "$(which jq)" ] || [ ! -x "$(which 7z)" ]; then
   echo Please install jq and p7zip.
   exit 1
 fi
 
 CWD="$(pwd)"
 TMP="${TMP:-$(mktemp -d)}"
-source "$CWD/element-desktop.info"
+. "$CWD/element-desktop.info"
 OUTPUT="${OUTPUT:-$CWD}"
 
 export PATH="/opt/rust/bin:$PATH"
@@ -34,7 +34,7 @@ export CARGO_HOME="$BASE_TMP_DIR/cargo"
 mkdir -p "$YARN_YARN_OFFLINE_MIRROR"
 
 # element-web
-cd element-web-$VERSION
+cd "element-web-$VERSION"
 yarn install --frozen-lockfile \
              --ignore-engines \
              --no-fund \
@@ -42,15 +42,15 @@ yarn install --frozen-lockfile \
 yarn cache clean
 
 # element-desktop
-cd ../element-desktop-$VERSION
+cd "../element-desktop-$VERSION"
 
 ## pre-built electron
 EVERSION=$(jq --raw-output '.devDependencies.electron' < package.json)
-mkdir -p "$XDG_CACHE_HOME"/electron{,-builder}
+mkdir -p "$XDG_CACHE_HOME/electron" "$XDG_CACHE_HOME/electron-builder"
 if [ -e "$CWD/electron-v$EVERSION-linux-x64.zip" ]; then
   cp "$CWD/electron-v$EVERSION-linux-x64.zip" "$XDG_CACHE_HOME/electron/"
 else
-  wget --directory-prefix="$XDG_CACHE_HOME/electron" --tries=0 --retry-on-http-error=503 https://github.com/electron/electron/releases/download/v$EVERSION/electron-v$EVERSION-linux-x64.zip
+  wget --directory-prefix="$XDG_CACHE_HOME/electron" --tries=0 --retry-on-http-error=503 "https://github.com/electron/electron/releases/download/v$EVERSION/electron-v$EVERSION-linux-x64.zip"
 fi
 
 ## element-desktop itself
@@ -59,9 +59,9 @@ yarn install --frozen-lockfile \
              --no-fund \
              --update-checksums
 yarn cache clean
-EDIR="$(find $XDG_CACHE_HOME/electron -type d -mindepth 1 -maxdepth 1)"
+EDIR="$(find "$XDG_CACHE_HOME/electron" -type d -mindepth 1 -maxdepth 1)"
 rm "$EDIR/electron-v$EVERSION-linux-x64.zip"
-ln -s ../electron-v$EVERSION-linux-x64.zip "$EDIR/"
+ln -s "../electron-v$EVERSION-linux-x64.zip" "$EDIR/"
 
 ## pre-built ruby for electron-builder
 FPM_RUBY=$(grep linux-amd64 node_modules/app-builder-lib/out/targets/tools.js | head -1 | cut -d'"' -f2)
@@ -70,7 +70,7 @@ mkdir -p "$XDG_CACHE_HOME/electron-builder/$FPM_RUBY_TAG/$FPM_RUBY_TAG-${FPM_RUB
 if [ -e "$CWD/$FPM_RUBY" ]; then
   cp "$CWD/$FPM_RUBY" "$XDG_CACHE_HOME/electron-builder/"
 else
-  wget --directory-prefix="$XDG_CACHE_HOME/electron-builder/" --tries=0 --retry-on-http-error=503 https://github.com/electron-userland/electron-builder-binaries/releases/download/$FPM_RUBY_TAG/$FPM_RUBY
+  wget --directory-prefix="$XDG_CACHE_HOME/electron-builder/" --tries=0 --retry-on-http-error=503 "https://github.com/electron-userland/electron-builder-binaries/releases/download/$FPM_RUBY_TAG/$FPM_RUBY"
 fi
 7z x -o"$XDG_CACHE_HOME/electron-builder/$FPM_RUBY_TAG/$FPM_RUBY_TAG-${FPM_RUBY%.7z}" "$XDG_CACHE_HOME/electron-builder/$FPM_RUBY"
 rm "$XDG_CACHE_HOME/electron-builder/$FPM_RUBY"
@@ -78,18 +78,18 @@ rm "$XDG_CACHE_HOME/electron-builder/$FPM_RUBY"
 ## matrix-seshat
 RUST_PLATFORM=$(rustc -Vv | awk '/host/ {print $2}')
 SESHATVERSION=$(jq --raw-output '.hakDependencies."matrix-seshat"' < package.json | tr -d '^')
-mkdir -p .hak/hakModules .hak/matrix-seshat/$RUST_PLATFORM
+mkdir -p .hak/hakModules ".hak/matrix-seshat/$RUST_PLATFORM"
 if [ -e "$CWD/seshat-$SESHATVERSION.tar.gz" ]; then
   cp "$CWD/seshat-$SESHATVERSION.tar.gz" .hak/
 else
-  wget --directory-prefix=.hak --tries=0 --retry-on-http-error=503 https://github.com/matrix-org/seshat/archive/$SESHATVERSION/seshat-$SESHATVERSION.tar.gz
+  wget --directory-prefix=.hak --tries=0 --retry-on-http-error=503 "https://github.com/matrix-org/seshat/archive/$SESHATVERSION/seshat-$SESHATVERSION.tar.gz"
 fi
-tar xf .hak/seshat-$SESHATVERSION.tar.gz -C .hak seshat-$SESHATVERSION/seshat-node
-mv .hak/seshat-$SESHATVERSION/seshat-node .hak/hakModules/matrix-seshat
-ln -s ../../hakModules/matrix-seshat .hak/matrix-seshat/$RUST_PLATFORM/build
-rm -r .hak/seshat-$SESHATVERSION.tar.gz .hak/seshat-$SESHATVERSION
+tar xf ".hak/seshat-$SESHATVERSION.tar.gz" -C .hak "seshat-$SESHATVERSION/seshat-node"
+mv ".hak/seshat-$SESHATVERSION/seshat-node" .hak/hakModules/matrix-seshat
+ln -s ../../hakModules/matrix-seshat ".hak/matrix-seshat/$RUST_PLATFORM/build"
+rm -r ".hak/seshat-$SESHATVERSION.tar.gz" ".hak/seshat-$SESHATVERSION"
 
-cd .hak/matrix-seshat/$RUST_PLATFORM/build
+cd ".hak/matrix-seshat/$RUST_PLATFORM/build"
 yarn install --frozen-lockfile \
              --ignore-engines \
              --no-fund \
@@ -120,8 +120,8 @@ cd ../../../..
 # vendor everything
 cd ..
 tar cfJ "$OUTPUT/element-desktop-$VERSION-vendored-sources.tar.xz" \
-           element-desktop-$VERSION/vendor \
-           element-desktop-$VERSION/.hak \
-           element-desktop-$VERSION/electron-cache
-rm -rf $TMP
-cd $CWD
+           "element-desktop-$VERSION/vendor" \
+           "element-desktop-$VERSION/.hak" \
+           "element-desktop-$VERSION/electron-cache"
+rm -rf "$TMP"
+cd "$CWD"

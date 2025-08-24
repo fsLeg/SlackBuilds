@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/bin/sh
 
 set -e
 
 CWD="$(pwd)"
 TMP="${TMP:-$(mktemp -d)}"
-source "$CWD/buf.info"
+. "$CWD/buf.info"
 OUTPUT="${OUTPUT:-$CWD}"
 export GOPATH="$TMP/cache"
 export GOCACHE="$TMP/cache"

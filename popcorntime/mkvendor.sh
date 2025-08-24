@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/bin/sh
 
 set -e
 
 CWD="$(pwd)"
 TMP="${TMP:-$(mktemp -d)}"
-source "$CWD/popcorntime.info"
+. "$CWD/popcorntime.info"
 TARNAM=popcorn-desktop
 OUTPUT="${OUTPUT:-$CWD}"
 export YARN_CACHE_FOLDER="$TMP/cache"

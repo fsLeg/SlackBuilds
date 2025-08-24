@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/bin/sh
 
 set -e
 
 CWD="$(pwd)"
 TMP="${TMP:-$(mktemp -d)}"
-source "$CWD/amneziawg-go.info"
+. "$CWD/amneziawg-go.info"
 OUTPUT="${OUTPUT:-$CWD}"
 export GOPATH="$TMP/cache"
 export GOCACHE="$TMP/cache"
