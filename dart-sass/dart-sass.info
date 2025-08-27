@@ -1,12 +1,12 @@
 PRGNAM="dart-sass"
-VERSION="1.90.0"
+VERSION="1.91.0"
 HOMEPAGE="https://sass-lang.com/dart-sass"
-DOWNLOAD="https://github.com/sass/dart-sass/archive/1.90.0/dart-sass-1.90.0.tar.gz \
+DOWNLOAD="https://github.com/sass/dart-sass/archive/1.91.0/dart-sass-1.91.0.tar.gz \
           https://github.com/sass/sass/archive/embedded-protocol-3.2.0/sass-embedded-protocol-3.2.0.tar.gz \
-          https://sbo.t-rg.ws/dart-sass-1.90.0-vendored-sources.tar.xz"
-MD5SUM="f77884d826ef7338740eb8f0eed945b4 \
+          https://sbo.t-rg.ws/dart-sass-1.91.0-vendored-sources.tar.xz"
+MD5SUM="31fe7faeb9ed39a91c9e3e5a676fee32 \
         8e912eeb9663ae70360cd7c8a36ded06 \
-        e510e5c119377824a83d2c7ab4c6c70c"
+        c89856dae3e3cbf8fd16310868f1d0dd"
 DOWNLOAD_x86_64=""
 MD5SUM_x86_64=""
 REQUIRES="dart-sdk buf"
