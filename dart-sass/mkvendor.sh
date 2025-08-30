@@ -14,11 +14,11 @@ cd "$TMP/$PRGNAM-$VERSION"
 dart --disable-analytics
 dart pub get
 
-if [ -f "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar" ]; then
-    rm "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar"
+if [ -f "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz" ]; then
+    rm -v "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz"
 fi
 
 tar cfJ "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz" -C "$TMP" vendor/
 
 cd "$CWD"
-rm -rf "$TMP"
+rm -rv "$TMP"

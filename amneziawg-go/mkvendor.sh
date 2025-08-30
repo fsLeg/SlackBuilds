@@ -14,11 +14,12 @@ cd "$TMP/$PRGNAM-$VERSION"
 
 go mod vendor
 
-if [ -f "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar" ]; then
-    rm "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar"
+if [ -f "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz" ]; then
+    rm -v "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz"
 fi
 
 tar cfJ "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz" vendor/
 
+go clean -cache -modcache
 cd "$CWD"
-su -c "rm -rf \"$TMP\""
+rm -rv "$TMP"

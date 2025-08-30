@@ -40,7 +40,7 @@ directory = "vendor"
 EOF
 
 if [ -f "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz" ]; then
-    rm "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz"
+    rm -v "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz"
 fi
 
 tar cfJ "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz" .cargo/ vendor/

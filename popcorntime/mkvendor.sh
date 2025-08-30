@@ -50,10 +50,10 @@ yarn install --frozen-lockfile \
              --production
 
 if [ -f "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar" ]; then
-    rm "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar"
+    rm -v "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar"
 fi
 
 tar cf "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar" -C "$TMP" vendor/
 
 cd "$CWD"
-rm -rf "$TMP"
+rm -rv "$TMP"

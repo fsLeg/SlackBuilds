@@ -45,7 +45,11 @@ replace-with = "vendored-sources"
 directory = "vendor"
 EOF
 
+if [ -f "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz" ]; then
+    rm -v "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz"
+fi
+
 tar cfJ "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz" .cargo/ vendor/
 
 cd "$CWD"
-rm -rf "$TMP"
+rm -rv "$TMP"

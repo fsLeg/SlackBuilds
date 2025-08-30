@@ -119,9 +119,14 @@ cd ../../../..
 
 # vendor everything
 cd ..
-tar cfJ "$OUTPUT/element-desktop-$VERSION-vendored-sources.tar.xz" \
-           "element-desktop-$VERSION/vendor" \
-           "element-desktop-$VERSION/.hak" \
-           "element-desktop-$VERSION/electron-cache"
-rm -rf "$TMP"
+
+if [ -f "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz" ]; then
+    rm -v "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz"
+fi
+
+tar cfJ "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz" \
+        "$PRGNAM-$VERSION/vendor" \
+        "$PRGNAM-$VERSION/.hak" \
+        "$PRGNAM-$VERSION/electron-cache"
 cd "$CWD"
+rm -rv "$TMP"
