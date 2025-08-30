@@ -27,8 +27,8 @@ cd $(dirname $0) ; CWD=$(pwd)
 PRGNAM=hugo
 VERSION=${VERSION:-0.149.0}
 BUILD=${BUILD:-1}
-TAG=${TAG:-_SBo}
-PKGTYPE=${PKGTYPE:-tgz}
+TAG=${TAG:-fsleg}
+PKGTYPE=${PKGTYPE:-txz}
 
 if [ -z "$ARCH" ]; then
   case "$( uname -m )" in
@@ -74,6 +74,10 @@ if [ "${EXTENDED:-yes}" = "yes" ] || [ "${DEPLOY:-yes}" = "yes" ]; then
   TAGS="-tags "
   if [ "${EXTENDED:-yes}" = "yes" ]; then
     TAGS+="extended,"
+    CFLAGS_SYS="$(pkg-config --cflags libsass) -DUSE_LIBSASS_SRC \
+                $(pkg-config --cflags libwebp) -DLIBWEBP_NO_SRC"
+    LDFLAGS_SYS="$(pkg-config --libs libsass) \
+                 $(pkg-config --libs libwebp)"
   fi
   if [ "${DEPLOY:-yes}" = "yes" ]; then
     TAGS+="withdeploy"
@@ -81,9 +85,11 @@ if [ "${EXTENDED:-yes}" = "yes" ] || [ "${DEPLOY:-yes}" = "yes" ]; then
 fi
 
 CGO_ENABLED=1 \
-CGO_CPPFLAGS="${SLKCFLAGS}" \
-CGO_CFLAGS="${SLKCFLAGS}" \
-CGO_CXXFLAGS="${SLKCFLAGS}" \
+CGO_CFLAGS="$SLKCFLAGS \
+            $CFLAGS_SYS" \
+CGO_CXXFLAGS="$CGO_CFLAGS" \
+CGO_CPPFLAGS="$CGO_CFLAGS" \
+CGO_LDFLAGS="$LDFLAGS_SYS" \
 GOPATH=$(pwd)/gocache \
 GOCACHE=$(pwd)/gocache \
 go build -v \
@@ -103,7 +109,9 @@ mkdir -p $PKG/usr/bin \
          $PKG/usr/share/bash-completion/completions \
          $PKG/usr/share/fish/vendor_completions.d \
          $PKG/usr/share/zsh/site-functions
-./hugo gen man --dir $PKG/usr/man/man1
+# hugo can generate man pages as well as docs, however, man pages are harder to read
+# due to bad formatting, otherwise they are identical to docs
+#./hugo gen man --dir $PKG/usr/man/man1
 ./hugo gen doc --dir $PKG/usr/doc/$PRGNAM-$VERSION
 ./hugo completion bash > $PKG/usr/share/bash-completion/completions/$PRGNAM
 ./hugo completion fish > $PKG/usr/share/fish/vendor_completions.d/$PRGNAM.fish
@@ -113,8 +121,8 @@ install -Dm755 -t $PKG/usr/bin hugo
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
-find $PKG/usr/man -type f -exec gzip -9 {} \;
-for i in $( find $PKG/usr/man -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
+#find $PKG/usr/man -type f -exec gzip -9 {} \;
+#for i in $( find $PKG/usr/man -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
 
 cp -a \
   CONTRIBUTING.md LICENSE README.md SECURITY.md \
