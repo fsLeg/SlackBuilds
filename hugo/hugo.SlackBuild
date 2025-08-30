@@ -104,14 +104,10 @@ go build -v \
             -extldflags '${LDFLAGS}'"
 
 mkdir -p $PKG/usr/bin \
-         $PKG/usr/man/man1 \
          $PKG/usr/doc/$PRGNAM-$VERSION \
          $PKG/usr/share/bash-completion/completions \
          $PKG/usr/share/fish/vendor_completions.d \
          $PKG/usr/share/zsh/site-functions
-# hugo can generate man pages as well as docs, however, man pages are harder to read
-# due to bad formatting, otherwise they are identical to docs
-#./hugo gen man --dir $PKG/usr/man/man1
 ./hugo gen doc --dir $PKG/usr/doc/$PRGNAM-$VERSION
 ./hugo completion bash > $PKG/usr/share/bash-completion/completions/$PRGNAM
 ./hugo completion fish > $PKG/usr/share/fish/vendor_completions.d/$PRGNAM.fish
@@ -120,9 +116,6 @@ install -Dm755 -t $PKG/usr/bin hugo
 
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
-
-#find $PKG/usr/man -type f -exec gzip -9 {} \;
-#for i in $( find $PKG/usr/man -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
 
 cp -a \
   CONTRIBUTING.md LICENSE README.md SECURITY.md \
