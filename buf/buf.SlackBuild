@@ -25,7 +25,7 @@
 cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=buf
-VERSION=${VERSION:-1.54.0}
+VERSION=${VERSION:-1.57.0}
 BUILD=${BUILD:-1}
 TAG=${TAG:-fsleg}
 PKGTYPE=${PKGTYPE:-txz}
@@ -71,7 +71,7 @@ tar xf $CWD/$PRGNAM-$VERSION-vendored-sources.tar.xz
 chown -R root:root .
 
 # Don't fetch another copy of a toolchain
-patch -p1 < $CWD/disable-toolchain-fetching.patch
+sed -i '/^toolchain/d' go.mod
 
 mkdir build
 CGO_CPPFLAGS="${SLKCFLAGS}" \

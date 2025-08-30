@@ -1,10 +1,10 @@
 PRGNAM="buf"
-VERSION="1.54.0"
+VERSION="1.57.0"
 HOMEPAGE="https://buf.build/"
-DOWNLOAD="https://github.com/bufbuild/buf/archive/v1.54.0/buf-1.54.0.tar.gz \
-          https://sbo.t-rg.ws/buf-1.54.0-vendored-sources.tar.xz"
-MD5SUM="2869866e74036e973a60cd782f4fd178 \
-        3e95d5a2bd6da0856d25b371f7a53bcf"
+DOWNLOAD="https://github.com/bufbuild/buf/archive/v1.57.0/buf-1.57.0.tar.gz \
+          https://sbo.t-rg.ws/buf-1.57.0-vendored-sources.tar.xz"
+MD5SUM="d857e583581060934dc6be6f218ae257 \
+        eb2f50a05ce7db8e68e4b6e901b5cc42"
 DOWNLOAD_x86_64=""
 MD5SUM_x86_64=""
 REQUIRES="google-go-lang"
