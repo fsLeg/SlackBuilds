@@ -1,0 +1,17 @@
+QOwnNotes (notepad with markdown support and Nextcloud integration)
+
+QOwnNotes is the open source (GPL) plain-text file notepad with markdown
+support and todo list manager for GNU/Linux, Mac OS X and Windows,
+that (optionally) works together with the notes application of
+Nextcloud.
+
+- You own your own notes! All notes are stored as plain-text files
+  on your desktop computer.
+- Sync them over devices (desktop & mobile) with your Nextcloud
+  sync client.
+- Use Nextcloud Notes to edit your notes in the web.
+
+To build using Qt6 instead of Qt5, use QT6=yes. This requires qt6.
+
+To enable git versioning of your notes, use GIT=yes. This requires
+libgit2.
