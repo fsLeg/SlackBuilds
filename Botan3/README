@@ -6,10 +6,4 @@ features.
 
 Botan relies on Python3 for its compilation configuration.
 
-To build TPM support, use `TPM=YES`. This option adds a dependency on
-`system/trousers`.
-
-To build TPM2 support, use `TPM2=YES`. This option adds a dependency on
-tpm2-tss (not on SBo).
-
 This package can be safely installed alongside Botan.

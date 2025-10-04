@@ -29,8 +29,8 @@ cd $(dirname $0) ; CWD=$(pwd)
 PRGNAM=Botan3
 VERSION=${VERSION:-3.9.0}
 BUILD=${BUILD:-1}
-TAG=${TAG:-fsleg}
-PKGTYPE=${PKGTYPE:-txz}
+TAG=${TAG:-_SBo}
+PKGTYPE=${PKGTYPE:-tgz}
 
 if [ -z "$ARCH" ]; then
   case "$( uname -m )" in
@@ -81,14 +81,6 @@ find -L . \
  \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
   -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
 
-if [ "${TPM:-NO}" = "YES" ]; then
-  TPMFLAG="--with-tpm"
-fi
-
-if [ "${TPM2:-NO}" = "YES" ]; then
-  TPM2FLAG="--with-tpm2"
-fi
-
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
 python3 configure.py \
@@ -104,9 +96,7 @@ python3 configure.py \
   --with-boost \
   --with-sqlite3 \
   --with-commoncrypto \
-  --program-suffix=3 \
-  $TPMFLAG \
-  $TPM2FLAG
+  --program-suffix=3
 
 make
 make install DESTDIR=$PKG
