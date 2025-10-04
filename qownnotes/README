@@ -11,7 +11,11 @@ Nextcloud.
   sync client.
 - Use Nextcloud Notes to edit your notes in the web.
 
-To build using Qt6 instead of Qt5, use QT6=yes. This requires qt6.
+To build using Qt6, use QT6=yes, otherwise Qt5 will be used. This
+requires qt6.
 
-To enable git versioning of your notes, use GIT=yes. This requires
-libgit2.
+To enable internal git versioning of your notes, use LIBGIT2=yes,
+otherwise `git` command will be used. This requires libgit2.
+
+To use system Botan, use BOTAN=yes, otherwise a bundled stub will be
+used. This requires Botan3.

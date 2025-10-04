@@ -82,8 +82,12 @@ if [ "${QT6:-no}" != "no" ]; then
   USE_QT6="-DQON_QT6_BUILD=ON"
 fi
 
-if [ "${GIT:-no}" != "no" ]; then
+if [ "${LIBGIT2:-no}" != "no" ]; then
   USE_LIBGIT2="-DBUILD_WITH_LIBGIT2=ON"
+fi
+
+if [ "${BOTAN:-no}" != "no" ]; then
+  USE_SYSTEM_BOTAN="-DBUILD_WITH_SYSTEM_BOTAN=ON"
 fi
 
 mkdir build
@@ -95,6 +99,7 @@ cmake \
   -DBUILD_WITH_ASPELL=ON \
   $USE_QT6 \
   $USE_LIBGIT2 \
+  $USE_SYSTEM_BOTAN \
   -DCMAKE_BUILD_TYPE=Release \
   -B build
 cmake --build build
