@@ -1,0 +1,6 @@
+OSS implementation of the TCG TPM2 Software Stack (TSS2).
+
+Before building tpm2-tss, please create a "tss" user and group:
+
+  # groupadd -g 374 tss
+  # useradd -g tss -u 374 -d /home/tss -M -s /bin/bash tss

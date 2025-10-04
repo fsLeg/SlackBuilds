@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.
+# Line up the first '|' above the ':' following the base package name, and
+# the '|' on the right side marks the last column you can put a character in.
+# You must make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+        |-----handy-ruler------------------------------------------------------|
+tpm2-tss: tpm2-tss (OSS implementation of the TCG TPM2 Software Stack (TSS2))
+tpm2-tss:
+tpm2-tss: OSS implementation of the TCG TPM2 Software Stack (TSS2).
+tpm2-tss:
+tpm2-tss: Homepage: https://tpm2-software.github.io/
+tpm2-tss:
+tpm2-tss:
+tpm2-tss:
+tpm2-tss:
+tpm2-tss:
+tpm2-tss:
