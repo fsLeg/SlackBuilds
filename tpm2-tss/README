@@ -1,5 +1,14 @@
 OSS implementation of the TCG TPM2 Software Stack (TSS2).
 
+TPM2.0 TSS (Software Stack) consists of API layers provided to support
+TPM 2.0 chips. It is made out of three layers:
+
+- Enhanced System API (ESAPI)
+- System API (SAPI), which implements the system layer API;
+- Marshaling/Unmarshaling (MU)
+- TPM Command Transmission Interface (TCTI), which is used by SAPI to
+  allow communication with the TAB/RM layer;
+
 Before building tpm2-tss, please create a "tss" user and group:
 
   # groupadd -g 374 tss
