@@ -1,10 +1,10 @@
 PRGNAM="hugo"
-VERSION="0.151.0"
+VERSION="0.151.1"
 HOMEPAGE="https://gohugo.io/"
-DOWNLOAD="https://github.com/gohugoio/hugo/archive/v0.151.0/hugo-0.151.0.tar.gz \
-          https://sbo.t-rg.ws/hugo-0.151.0-vendored-sources.tar.xz"
-MD5SUM="f8de1c77782cb79e3718243b3cf9c0f8 \
-        c3af9d917dd26f224e7d9bd802ca3048"
+DOWNLOAD="https://github.com/gohugoio/hugo/archive/v0.151.1/hugo-0.151.1.tar.gz \
+          https://sbo.t-rg.ws/hugo-0.151.1-vendored-sources.tar.xz"
+MD5SUM="588866f3f1b9dd3faa9012d5c50ca1cc \
+        23abe4ebc59bce7dcab229b0f2909a53"
 DOWNLOAD_x86_64=""
 MD5SUM_x86_64=""
 REQUIRES="google-go-lang"
