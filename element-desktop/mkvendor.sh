@@ -35,10 +35,17 @@ mkdir -p "$YARN_YARN_OFFLINE_MIRROR"
 
 # element-web
 cd "element-web-$VERSION"
-yarn install --frozen-lockfile \
-             --ignore-engines \
-             --no-fund \
-             --update-checksums
+# this `yarn install` is actually a two step process. the second step
+# doesn't like wrap-ansi that was cached during the first step, however we
+# aren't interested in cache, we are interested in vendor directory, so we
+# restart the command after clearing cache
+until yarn install --frozen-lockfile \
+                   --ignore-engines \
+                   --no-fund \
+                   --update-checksums
+  do
+    yarn cache clean
+done
 yarn cache clean
 
 # element-desktop
