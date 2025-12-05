@@ -31,6 +31,9 @@ fi
 
 if [ -f mkvendor.sh ]; then
   sh mkvendor.sh
+  # send a notification before entering password
+  tput bel || echo -e '\a' || true
+  echo put $PRGNAM-$VERSION-vendored-sources.tar* | sftp sawako:/media/slab1/sbo
 fi
 
 if [ "$DOWNLOAD" != "UNSUPPORTED" ]; then
@@ -48,5 +51,9 @@ fi
 
 sbofixinfo
 rm -f "$PRGNAM.info.bak"
+
+if [ -z "$NOBUILD" ]; then
+  time fakeroot bash $PRGNAM.SlackBuild
+fi
 
 cd "$CWD"
