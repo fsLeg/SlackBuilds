@@ -11,5 +11,3 @@ WARNING: vendored-sources.tar.xz is over 800 Mb and the building process
 requires about 5 GB of space. If you're hard-pressed on space, consider
 installing element-desktop-bin instead.
 
-WARNING: this script's build dependency is nodejs24-bin which conflicts
-with nodejs.

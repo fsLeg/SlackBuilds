@@ -30,11 +30,19 @@ export npm_config_cache="$YARN_CACHE_FOLDER"
 export npm_config_nodedir=/usr
 export XDG_CACHE_HOME="$BASE_TMP_DIR/electron-cache"
 export CARGO_HOME="$BASE_TMP_DIR/cargo"
+export COREPACK_HOME="$BASE_TMP_DIR/corepack"
 
 mkdir -p "$YARN_YARN_OFFLINE_MIRROR"
 
 # element-web
 cd "element-web-$VERSION"
+
+# set up yarn
+corepack pack -o "$COREPACK_HOME/yarn.tgz"
+# when "properly" calling yarn through corepack, it fails to pick up
+# vendored tarballs, so we call it directly
+export PATH=$COREPACK_HOME/v1/yarn/$(corepack yarn --version)/bin:$PATH
+
 # this `yarn install` is actually a two step process. the second step
 # doesn't like wrap-ansi that was cached during the first step, however we
 # aren't interested in cache, we are interested in vendor directory, so we
@@ -124,6 +132,8 @@ directory = 'vendor'
 EOF
 cd ../../../..
 
+corepack cache clean
+
 # vendor everything
 cd ..
 
@@ -134,6 +144,7 @@ fi
 tar cfJ "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz" \
         "$PRGNAM-$VERSION/vendor" \
         "$PRGNAM-$VERSION/.hak" \
-        "$PRGNAM-$VERSION/electron-cache"
+        "$PRGNAM-$VERSION/electron-cache" \
+        "$PRGNAM-$VERSION/corepack/yarn.tgz"
 cd "$CWD"
 rm -rv "$TMP"
