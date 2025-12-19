@@ -15,10 +15,10 @@ Hugo is designed to work well for any kind of website including blogs,
 tumbles, and docs.
 
 By default the extended version with deployment support is built. The
-extended version adds support for WebP image encoding and Sass
-processing. The deployment support allows you to deploy your website to
-Amazon S3, Azure Blob Storage, or Google Cloud Storage. To build just
-the core version use:
+extended version adds support for Sass processing using libsass. The
+deployment support allows you to deploy your website to Amazon S3,
+Azure Blob Storage, or Google Cloud Storage. To build just the core
+version use:
 
     EXTENDED=no DEPLOY=no ./hugo.SlackBuild
 
