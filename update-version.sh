@@ -20,8 +20,9 @@ cd "$PRGNAM"
 
 . "./$PRGNAM.info"
 sed -i "s|$VERSION|$NEWVER|g" "$PRGNAM.SlackBuild" "$PRGNAM.info"
-
+unset VERSION DOWNLOAD DOWNLOAD_x86_64
 . "./$PRGNAM.info"
+
 if [ "$DOWNLOAD" != "UNSUPPORTED" ]; then
   wget --tries=inf --retry-on-http-error=503 $DOWNLOAD || true
 fi
