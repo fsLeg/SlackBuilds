@@ -23,12 +23,13 @@ sed -i "s|$VERSION|$NEWVER|g" "$PRGNAM.SlackBuild" "$PRGNAM.info"
 unset VERSION DOWNLOAD DOWNLOAD_x86_64
 . "./$PRGNAM.info"
 
-if [ "$DOWNLOAD" != "UNSUPPORTED" ]; then
-  wget --tries=inf --retry-on-http-error=503 $DOWNLOAD || true
-fi
-if [ -n "$DOWNLOAD_x86_64" ]; then
-  wget --tries=inf --retry-on-http-error=503 $DOWNLOAD_x86_64 || true
-fi
+for URL in $(test "$DOWNLOAD" != "UNSUPPORTED" && echo "$DOWNLOAD" || echo "") \
+           $(test -n "$DOWNLOAD_x86_64" && echo "$DOWNLOAD_x86_64" || echo "")
+do
+  if [ ! -f "$(basename "$URL")" ]; then
+    wget --tries=inf --retry-on-http-error=503 "$URL" || true
+  fi
+done
 
 if [ -f mkvendor.sh ]; then
   sh mkvendor.sh
