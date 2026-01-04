@@ -19,7 +19,7 @@ CWD="$(pwd)"
 cd "$PRGNAM"
 
 . "./$PRGNAM.info"
-sed -i "s|$VERSION|$NEWVER|g" "$PRGNAM.SlackBuild" "$PRGNAM.info"
+sed -i "s|$(echo "$VERSION" | sed 's/\./\\./g')|$NEWVER|g" "$PRGNAM.SlackBuild" "$PRGNAM.info"
 unset VERSION DOWNLOAD DOWNLOAD_x86_64
 . "./$PRGNAM.info"
 
@@ -34,7 +34,7 @@ done
 if [ -f mkvendor.sh ]; then
   sh mkvendor.sh
   # send a notification before entering password
-  tput bel || echo -e '\a' || true
+  tput bel  || true
   echo put $PRGNAM-$VERSION-vendored-sources.tar* | sftp sawako:/media/slab1/sbo
 fi
 
@@ -55,7 +55,7 @@ sbofixinfo
 rm -f "$PRGNAM.info.bak"
 
 if [ -z "$NOBUILD" ]; then
-  time fakeroot bash $PRGNAM.SlackBuild
+  time fakeroot bash "$PRGNAM.SlackBuild"
 fi
 
 cd "$CWD"
