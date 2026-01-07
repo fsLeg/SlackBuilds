@@ -16,8 +16,11 @@ different Java versions.
 1.17 to 1.20.4:  Java SE 17
 1.16 or older:   Java SE 8
 
+WARNING: Only building of debug version is supported, so the building
+process requires up to 9 Gb of space. The debug symbols will be
+stripped, therefore the package will be much smaller.
+
 Optional dependencies are:
-- qt6:   use QT6=yes to build PrismLauncher with Qt6 instead of Qt5
 - scdoc: if present at build time, a man page for PrismLauncher will be
          generated
 - glfw3: use system GLFW libraries
