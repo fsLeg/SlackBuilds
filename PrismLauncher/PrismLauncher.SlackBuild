@@ -97,8 +97,8 @@ cmake --preset linux \
       -DLIB_SUFFIX="$LIBDIRSUFFIX" \
       -DMAN_INSTALL_DIR="/usr/man" \
       -DLauncher_BUILD_PLATFORM="slackware"
-cmake --build --preset linux --config Debug
-DESTDIR=$PKG cmake --install build --config Debug
+cmake --build --preset linux --config Release
+DESTDIR=$PKG cmake --install build --config Release
 
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true

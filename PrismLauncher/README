@@ -16,10 +16,6 @@ different Java versions.
 1.17 to 1.20.4:  Java SE 17
 1.16 or older:   Java SE 8
 
-WARNING: Only building of debug version is supported, so the building
-process requires up to 9 Gb of space. The debug symbols will be
-stripped, therefore the package will be much smaller.
-
 Optional dependencies are:
 - scdoc: if present at build time, a man page for PrismLauncher will be
          generated
