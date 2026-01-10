@@ -85,6 +85,9 @@ fi
 # fix man path
 sed -i 's/KDE_INSTALL_MANDIR/MAN_INSTALL_DIR/' CMakeLists.txt
 
+# do not set RPATH
+sed -i '/RPATH/d' CMakeLists.txt
+
 cmake --preset linux \
       -Wno-dev \
       -DENABLE_LTO="ON" \
@@ -92,13 +95,15 @@ cmake --preset linux \
       -DCMAKE_C_FLAGS="$SLKCFLAGS" \
       -DCMAKE_CXX_FLAGS="$SLKCFLAGS" \
       -DCMAKE_EXE_LINKER_FLAGS="$LDFLAGS -ldl" \
-      -DCMAKE_BUILD_TYPE="Release" \
+      -DCMAKE_DEFAULT_BUILD_TYPE="Release" \
       -DCMAKE_INSTALL_PREFIX="/usr" \
       -DLIB_SUFFIX="$LIBDIRSUFFIX" \
       -DMAN_INSTALL_DIR="/usr/man" \
-      -DLauncher_BUILD_PLATFORM="slackware"
-cmake --build --preset linux --config Release
-DESTDIR=$PKG cmake --install build --config Release
+      -DLauncher_BUILD_PLATFORM="slackware" \
+      -DLauncher_ENABLE_JAVA_DOWNLOADER="ON" \
+      -DBUILD_TESTING="OFF"
+cmake --build --preset linux
+DESTDIR=$PKG cmake --install build
 
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
