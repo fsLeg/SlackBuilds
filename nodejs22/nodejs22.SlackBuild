@@ -108,8 +108,8 @@ make install DESTDIR=$PKG
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
-find $PKG/usr/man -type f -exec gzip -9 {} \;
-for i in $( find $PKG/usr/man -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
+find $PKG/usr/man $PKG/usr/lib$LIBDIRSUFFIX/node_modules/npm/man -type f -exec gzip -9 {} \;
+for i in $( find $PKG/usr/man $PKG/usr/lib$LIBDIRSUFFIX/node_modules/npm/man -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
 
 ## Add bash completion file for npm.
 install -D -m 644 $PKG/usr/lib${LIBDIRSUFFIX}/node_modules/npm/lib/utils/completion.sh $PKG/usr/share/bash-completion/completions/npm
