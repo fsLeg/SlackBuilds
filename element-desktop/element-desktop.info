@@ -9,6 +9,6 @@ DOWNLOAD_x86_64="https://github.com/element-hq/element-desktop/archive/v1.12.9/e
 MD5SUM_x86_64="afefecf1f43cad6c383d4dcde541e807 \
                07d0c112c470893318ee7622665f380e \
                a29b5de64db136f45cc90202f99abc58"
-REQUIRES="sqlcipher rust-opt nodejs24-bin"
+REQUIRES="sqlcipher rust-opt nodejs22"
 MAINTAINER="Vladislav 'fsLeg' Borisov"
 EMAIL="fsleg@t-rg.ws"
