@@ -35,7 +35,7 @@ if [ -f mkvendor.sh ]; then
   sh mkvendor.sh
   # send a notification before entering password
   tput bel  || true
-  echo put $PRGNAM-$VERSION-vendored-sources.tar* | sftp sawako:/media/slab1/sbo
+  until (echo put $PRGNAM-$VERSION-vendored-sources.tar* | sftp sawako:/media/slab1/sbo); do :; done
 fi
 
 if [ "$DOWNLOAD" != "UNSUPPORTED" ]; then
