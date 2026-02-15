@@ -1,0 +1,35 @@
+#!/bin/bash
+
+CFG="/etc/3proxy/3proxy.cfg"
+PID="$(awk '/pidfile/ {print $2}' "$CFG")"
+
+case "$1" in
+   start)
+       echo Starting 3Proxy
+       mkdir -p "$(dirname "$PID")"
+       /usr/bin/3proxy "$CFG" &
+       ;;
+
+   stop)
+       echo Stopping 3Proxy
+       if [ -f "$PID" ]; then
+           kill "$(cat $PID)"
+       else
+           killall 3proxy
+       fi
+       ;;
+
+   restart|reload)
+       echo Reloading 3Proxy
+       if [ -f "$PID" ]; then
+           kill -s USR1 "$(cat $PID)"
+       else
+           killall -s USR1 3proxy
+       fi
+       ;;
+
+   *)
+       echo "Usage: $0 {start|stop|restart}"
+       exit 1
+esac
+exit 0

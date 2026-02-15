@@ -1,0 +1,134 @@
+#!/bin/bash
+
+# Slackware build script for 3proxy
+
+# Copyright 2026 Vladislav 'fsLeg' Borisov, Moscow, Russia
+# All rights reserved.
+#
+# Redistribution and use of this script, with or without modification, is
+# permitted provided that the following conditions are met:
+#
+# 1. Redistributions of this script must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR IMPLIED
+#  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+#  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO
+#  EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+#  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+#  OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+#  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+#  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+cd $(dirname $0) ; CWD=$(pwd)
+
+PRGNAM=3proxy
+VERSION=${VERSION:-0.9.5}
+BUILD=${BUILD:-1}
+TAG=${TAG:-fsleg}
+PKGTYPE=${PKGTYPE:-txz}
+
+if [ -z "$ARCH" ]; then
+  case "$( uname -m )" in
+    i?86) ARCH=i586 ;;
+    arm*) ARCH=arm ;;
+       *) ARCH=$( uname -m ) ;;
+  esac
+fi
+
+if [ ! -z "${PRINT_PACKAGE_NAME}" ]; then
+  echo "$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE"
+  exit 0
+fi
+
+TMP=${TMP:-/tmp/SBo}
+PKG=$TMP/package-$PRGNAM
+OUTPUT=${OUTPUT:-/tmp}
+
+if [ "$ARCH" = "i586" ]; then
+  SLKCFLAGS="-O2 -march=i586 -mtune=i686"
+elif [ "$ARCH" = "i686" ]; then
+  SLKCFLAGS="-O2 -march=i686 -mtune=i686"
+elif [ "$ARCH" = "x86_64" ]; then
+  SLKCFLAGS="-O2 -fPIC"
+elif [ "$ARCH" = "aarch64" ]; then
+  SLKCFLAGS="-O2 -fPIC"
+else
+  SLKCFLAGS="-O2"
+fi
+
+set -e
+
+if [ -z "$(getent group proxy)" -o -z "$(getent passwd proxy)" ]; then
+  echo "You must have a 'proxy' user and group to run this script."
+  echo "  # groupadd -g 396 proxy"
+  echo "  # useradd -u 396 -g 396 -s /sbin/nologin -M proxy"
+  exit 1
+fi
+
+rm -rf $PKG
+mkdir -p $TMP $PKG $OUTPUT
+cd $TMP
+rm -rf $PRGNAM-$VERSION
+tar xvf $CWD/$PRGNAM-$VERSION.tar.gz
+cd $PRGNAM-$VERSION
+chown -R root:root .
+find -L . \
+ \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
+  -o -perm 511 \) -exec chmod 755 {} \; -o \
+ \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
+  -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
+
+CFLAGS=$SLKCFLAGS \
+make -f Makefile.Linux
+make -f Makefile.Linux install DESTDIR=$PKG \
+                               prefix=/usr \
+                               man_prefix=/usr \
+                               chroot_prefix=/var/lib
+
+rm -r $PKG/usr/lib $PKG/etc/init.d
+mkdir -p $PKG/etc/rc.d
+cat $CWD/rc.$PRGNAM > $PKG/etc/rc.d/rc.$PRGNAM.new
+chmod 0755 $PKG/etc/rc.d/rc.$PRGNAM.new
+
+sed -i "s|/bin|/usr/bin|
+        s|/usr/local/$PRGNAM|/var/lib/$PRGNAM|
+        s|\#daemon|daemon|
+        /daemon/apidfile /var/run/$PRGNAM/$PRGNAM.pid" \
+        $PKG/etc/$PRGNAM/3proxy.cfg
+mv $PKG/etc/$PRGNAM/3proxy.cfg $PKG/etc/$PRGNAM/3proxy.cfg.new
+
+# proxy binary conflicts with libproxy, so we rename it
+mv $PKG/usr/bin/proxy $PKG/usr/bin/htproxy
+mv $PKG/usr/man/man8/proxy.8 $PKG/usr/man/man8/htproxy.8
+
+# taken from postinst file
+touch $PKG/var/lib/$PRGNAM/conf/passwd
+for file in $PKG/var/lib/$PRGNAM/conf/*; do mv "$file" "$file.new"; done
+mv $PKG/var/lib/$PRGNAM/conf/add3proxyuser.sh.new $PKG/var/lib/$PRGNAM/conf/add3proxyuser.sh
+chown -R proxy:proxy $PKG/var/lib/$PRGNAM
+chmod 0440 $PKG/var/lib/$PRGNAM/conf/*
+chmod 0550 $PKG/var/lib/$PRGNAM/{,conf,conf/add3proxyuser.sh}
+
+find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
+  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
+
+find $PKG/usr/man -type f -exec gzip -9 {} \;
+for i in $(find $PKG/usr/man -type l); do ln -s $(readlink $i).gz $i.gz; rm $i; done
+
+mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
+cp -aR \
+  cfg/ doc/* authors copying README \
+  $PKG/usr/doc/$PRGNAM-$VERSION
+iconv -f koi8-r -t utf-8 -o $PKG/usr/doc/$PRGNAM-$VERSION/ru/example1.txt doc/ru/example1.txt
+iconv -f koi8-r -t utf-8 -o $PKG/usr/doc/$PRGNAM-$VERSION/ru/iodbc.txt doc/ru/iodbc.txt
+cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
+
+mkdir -p $PKG/install
+cat $CWD/slack-desc > $PKG/install/slack-desc
+cat $CWD/doinst.sh > $PKG/install/doinst.sh
+
+cd $PKG
+/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE
