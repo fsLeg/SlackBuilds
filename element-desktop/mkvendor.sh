@@ -29,32 +29,20 @@ export YARN_CACHE_FOLDER="$BASE_TMP_DIR/cache"
 export npm_config_cache="$YARN_CACHE_FOLDER"
 export npm_config_nodedir=/usr
 export XDG_CACHE_HOME="$BASE_TMP_DIR/electron-cache"
+export XDG_CONFIG_HOME="$BASE_TMP_DIR"
 export CARGO_HOME="$BASE_TMP_DIR/cargo"
 export COREPACK_HOME="$BASE_TMP_DIR/corepack"
 
-mkdir -p "$YARN_YARN_OFFLINE_MIRROR"
+# set up package managers
+mkdir -p "$COREPACK_HOME/bin" "$YARN_YARN_OFFLINE_MIRROR"
+corepack pack -o "$COREPACK_HOME/pm.tgz" "pnpm@$(node -p "require('./$PRGNAM-$VERSION/package.json').packageManager.split('@')[1].split('+')[0]")" "yarn@^1"
+corepack enable --install-directory "$COREPACK_HOME/bin"
+export PATH="$COREPACK_HOME/bin:$PATH"
+pnpm config set store-dir "$XDG_CONFIG_HOME/pnpm-store"
 
 # element-web
 cd "element-web-$VERSION"
-
-# set up yarn
-corepack pack -o "$COREPACK_HOME/yarn.tgz"
-# when "properly" calling yarn through corepack, it fails to pick up
-# vendored tarballs, so we call it directly
-export PATH=$COREPACK_HOME/v1/yarn/$(corepack yarn --version)/bin:$PATH
-
-# this `yarn install` is actually a two step process. the second step
-# doesn't like wrap-ansi that was cached during the first step, however we
-# aren't interested in cache, we are interested in vendor directory, so we
-# restart the command after clearing cache
-until yarn install --frozen-lockfile \
-                   --ignore-engines \
-                   --no-fund \
-                   --update-checksums
-  do
-    yarn cache clean
-done
-yarn cache clean
+pnpm install --frozen-lockfile
 
 # element-desktop
 cd "../element-desktop-$VERSION"
@@ -69,11 +57,16 @@ else
 fi
 
 ## element-desktop itself
-yarn install --frozen-lockfile \
-             --ignore-engines \
-             --no-fund \
-             --update-checksums
-yarn cache clean
+pnpm install --frozen-lockfile
+pnpm store add $(python3 -c "
+import yaml
+d = yaml.safe_load(open('pnpm-lock.yaml'))
+print('\n'.join(d['importers']['.']['dependencies'].keys()))
+print('\n'.join(d['importers']['.']['devDependencies'].keys()))
+print('\n'.join(d['packages'].keys()))
+") || true
+pnpm add '@esbuild/linux-x64'
+
 EDIR="$(find "$XDG_CACHE_HOME/electron" -type d -mindepth 1 -maxdepth 1)"
 rm "$EDIR/electron-v$EVERSION-linux-x64.zip"
 ln -s "../electron-v$EVERSION-linux-x64.zip" "$EDIR/"
@@ -104,13 +97,10 @@ mv ".hak/seshat-$SESHATVERSION/seshat-node" .hak/hakModules/matrix-seshat
 ln -s ../../hakModules/matrix-seshat ".hak/matrix-seshat/$RUST_PLATFORM/build"
 rm -r ".hak/seshat-$SESHATVERSION.tar.gz" ".hak/seshat-$SESHATVERSION"
 
-cd ".hak/matrix-seshat/$RUST_PLATFORM/build"
-yarn install --frozen-lockfile \
-             --ignore-engines \
-             --no-fund \
-             --update-checksums
+pushd ".hak/matrix-seshat/$RUST_PLATFORM/build"
+jq '.packageManager = "yarn@1.22.22"' package.json > tmp.json && mv tmp.json package.json
+yarn install --frozen-lockfile
 yarn cache clean
-rm -r node_modules
 
 ## native extensions
 cat << EOF >> Cargo.toml
@@ -130,9 +120,9 @@ replace-with = 'vendored-sources'
 [source.vendored-sources]
 directory = 'vendor'
 EOF
-cd ../../../..
+popd
 
-corepack cache clean
+rm -rf pnpm .hak/hakModules/matrix-seshat/{node_modules,target}
 
 # vendor everything
 cd ..
@@ -142,9 +132,12 @@ if [ -f "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz" ]; then
 fi
 
 tar cfJ "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz" \
+        "$PRGNAM-$VERSION/pnpm-store" \
         "$PRGNAM-$VERSION/vendor" \
         "$PRGNAM-$VERSION/.hak" \
         "$PRGNAM-$VERSION/electron-cache" \
-        "$PRGNAM-$VERSION/corepack/yarn.tgz"
+        "$PRGNAM-$VERSION/corepack/pm.tgz"
 cd "$CWD"
-rm -rv "$TMP"
+echo "Removing directory $TMP..."
+rm -r "$TMP"
+echo "Done."
