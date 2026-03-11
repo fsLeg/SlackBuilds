@@ -35,17 +35,20 @@ export COREPACK_HOME="$BASE_TMP_DIR/corepack"
 
 # set up package managers
 mkdir -p "$COREPACK_HOME/bin" "$YARN_YARN_OFFLINE_MIRROR"
-corepack pack -o "$COREPACK_HOME/pm.tgz" "pnpm@$(node -p "require('./$PRGNAM-$VERSION/package.json').packageManager.split('@')[1].split('+')[0]")" "yarn@^1"
+corepack pack -o "$COREPACK_HOME/pm.tgz" \
+  "$(jq -r .packageManager "element-web-$VERSION/package.json" | cut -d'+' -f1)" \
+  "$(jq -r .packageManager "element-desktop-$VERSION/package.json" | cut -d'+' -f1)" \
+  "yarn@^1"
 corepack enable --install-directory "$COREPACK_HOME/bin"
 export PATH="$COREPACK_HOME/bin:$PATH"
 pnpm config set store-dir "$XDG_CONFIG_HOME/pnpm-store"
 
 # element-web
-cd "element-web-$VERSION"
+cd "$TMP/element-web-$VERSION"
 pnpm install --frozen-lockfile
 
 # element-desktop
-cd "../element-desktop-$VERSION"
+cd "$TMP/element-desktop-$VERSION"
 
 ## pre-built electron
 EVERSION=$(jq --raw-output '.devDependencies.electron' < package.json)
