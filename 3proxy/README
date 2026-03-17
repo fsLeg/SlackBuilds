@@ -16,3 +16,8 @@ It's created to be small, simple and yet very functional.
 under terms of GNU/GPL. Starting from 0.6 version BSD-style license is
 used and any compatible license (Apache license, GPL, LGPL) may be used
 instead.
+
+A user and group "proxy" must exist prior to running this script.
+To create them, run as root:
+  groupadd -g 396 proxy
+  useradd -u 396 -g 396 -s /sbin/nologin -M proxy

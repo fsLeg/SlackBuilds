@@ -27,8 +27,8 @@ cd $(dirname $0) ; CWD=$(pwd)
 PRGNAM=3proxy
 VERSION=${VERSION:-0.9.5}
 BUILD=${BUILD:-1}
-TAG=${TAG:-fsleg}
-PKGTYPE=${PKGTYPE:-txz}
+TAG=${TAG:-_SBo}
+PKGTYPE=${PKGTYPE:-tgz}
 
 if [ -z "$ARCH" ]; then
   case "$( uname -m )" in
@@ -81,7 +81,7 @@ find -L . \
  \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
   -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
 
-CFLAGS=$SLKCFLAGS \
+CFLAGS="$SLKCFLAGS" \
 make -f Makefile.Linux
 make -f Makefile.Linux install DESTDIR=$PKG \
                                prefix=/usr \
@@ -89,9 +89,7 @@ make -f Makefile.Linux install DESTDIR=$PKG \
                                chroot_prefix=/var/lib
 
 rm -r $PKG/usr/lib $PKG/etc/init.d
-mkdir -p $PKG/etc/rc.d
-cat $CWD/rc.$PRGNAM > $PKG/etc/rc.d/rc.$PRGNAM.new
-chmod 0755 $PKG/etc/rc.d/rc.$PRGNAM.new
+install -Dm755 $CWD/rc.$PRGNAM $PKG/etc/rc.d/rc.$PRGNAM.new
 
 sed -i "s|/bin|/usr/bin|
         s|/usr/local/$PRGNAM|/var/lib/$PRGNAM|
