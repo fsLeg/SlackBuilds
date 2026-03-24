@@ -75,8 +75,8 @@ rm "$EDIR/electron-v$EVERSION-linux-x64.zip"
 ln -s "../electron-v$EVERSION-linux-x64.zip" "$EDIR/"
 
 ## pre-built ruby for electron-builder
-FPM_RUBY=$(grep linux-amd64 node_modules/app-builder-lib/out/targets/tools.js | head -1 | cut -d'"' -f2)
-FPM_RUBY_TAG=$(grep 'const fpmPath' node_modules/app-builder-lib/out/targets/tools.js | head -1 | cut -d'"' -f2)
+FPM_RUBY=$(grep linux-amd64 node_modules/app-builder-lib/out/toolsets/linux.js | head -1 | cut -d'"' -f2)
+FPM_RUBY_TAG=$(grep 'const fpmPath' node_modules/app-builder-lib/out/toolsets/linux.js | head -1 | cut -d'"' -f2)
 mkdir -p "$XDG_CACHE_HOME/electron-builder/$FPM_RUBY_TAG/$FPM_RUBY_TAG-${FPM_RUBY%.7z}"
 if [ -e "$CWD/$FPM_RUBY" ]; then
   cp "$CWD/$FPM_RUBY" "$XDG_CACHE_HOME/electron-builder/"
