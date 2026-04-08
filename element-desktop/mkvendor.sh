@@ -11,6 +11,7 @@ CWD="$(pwd)"
 TMP="${TMP:-$(mktemp -d)}"
 . "$CWD/element-desktop.info"
 OUTPUT="${OUTPUT:-$CWD}"
+WEBNAM="${PRGNAM%-desktop}-web"
 
 export PATH="/opt/rust/bin:$PATH"
 if [ -z "$LD_LIBRARY_PATH" ]; then
@@ -20,10 +21,9 @@ else
 fi
 
 cd "$TMP"
-tar xf "$CWD/element-desktop-$VERSION.tar.gz"
-tar xf "$CWD/element-web-$VERSION.tar.gz"
+tar xf "$CWD/$WEBNAM-$VERSION.tar.gz"
 
-BASE_TMP_DIR="$TMP/element-desktop-$VERSION"
+BASE_TMP_DIR="$TMP/$WEBNAM-$VERSION"
 export YARN_YARN_OFFLINE_MIRROR="$BASE_TMP_DIR/vendor"
 export YARN_CACHE_FOLDER="$BASE_TMP_DIR/cache"
 export npm_config_cache="$YARN_CACHE_FOLDER"
@@ -36,19 +36,19 @@ export COREPACK_HOME="$BASE_TMP_DIR/corepack"
 # set up package managers
 mkdir -p "$COREPACK_HOME/bin" "$YARN_YARN_OFFLINE_MIRROR"
 corepack pack -o "$COREPACK_HOME/pm.tgz" \
-  "$(jq -r .packageManager "element-web-$VERSION/package.json" | cut -d'+' -f1)" \
-  "$(jq -r .packageManager "element-desktop-$VERSION/package.json" | cut -d'+' -f1)" \
+  "$(jq -r .packageManager "$WEBNAM-$VERSION/package.json" | cut -d'+' -f1)" \
+  "$(jq -r .packageManager "$WEBNAM-$VERSION/apps/desktop/package.json" | cut -d'+' -f1)" \
   "yarn@^1"
 corepack enable --install-directory "$COREPACK_HOME/bin"
 export PATH="$COREPACK_HOME/bin:$PATH"
 pnpm config set store-dir "$XDG_CONFIG_HOME/pnpm-store"
 
 # element-web
-cd "$TMP/element-web-$VERSION"
+cd "$TMP/$WEBNAM-$VERSION"
 pnpm install --frozen-lockfile
 
 # element-desktop
-cd "$TMP/element-desktop-$VERSION"
+cd "apps/desktop"
 
 ## pre-built electron
 EVERSION=$(jq --raw-output '.devDependencies.electron' < package.json)
@@ -63,9 +63,9 @@ fi
 pnpm install --frozen-lockfile
 pnpm store add $(python3 -c "
 import yaml
-d = yaml.safe_load(open('pnpm-lock.yaml'))
-print('\n'.join(d['importers']['.']['dependencies'].keys()))
-print('\n'.join(d['importers']['.']['devDependencies'].keys()))
+d = yaml.safe_load(open('../../pnpm-lock.yaml'))
+print('\n'.join(d['importers']['apps/desktop']['dependencies'].keys()))
+print('\n'.join(d['importers']['apps/desktop']['devDependencies'].keys()))
 print('\n'.join(d['packages'].keys()))
 ") || true
 pnpm add '@esbuild/linux-x64'
@@ -75,8 +75,8 @@ rm "$EDIR/electron-v$EVERSION-linux-x64.zip"
 ln -s "../electron-v$EVERSION-linux-x64.zip" "$EDIR/"
 
 ## pre-built ruby for electron-builder
-FPM_RUBY=$(grep linux-amd64 node_modules/app-builder-lib/out/toolsets/linux.js | head -1 | cut -d'"' -f2)
-FPM_RUBY_TAG=$(grep 'const fpmPath' node_modules/app-builder-lib/out/toolsets/linux.js | head -1 | cut -d'"' -f2)
+FPM_RUBY=$(grep linux-amd64 ../../node_modules/app-builder-lib/out/toolsets/linux.js | head -1 | cut -d'"' -f2)
+FPM_RUBY_TAG=$(grep 'const fpmPath' ../../node_modules/app-builder-lib/out/toolsets/linux.js | head -1 | cut -d'"' -f2)
 mkdir -p "$XDG_CACHE_HOME/electron-builder/$FPM_RUBY_TAG/$FPM_RUBY_TAG-${FPM_RUBY%.7z}"
 if [ -e "$CWD/$FPM_RUBY" ]; then
   cp "$CWD/$FPM_RUBY" "$XDG_CACHE_HOME/electron-builder/"
@@ -128,18 +128,18 @@ popd
 rm -rf pnpm .hak/hakModules/matrix-seshat/{node_modules,target}
 
 # vendor everything
-cd ..
+cd "$TMP"
 
 if [ -f "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz" ]; then
     rm -v "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz"
 fi
 
 tar cfJ "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz" \
-        "$PRGNAM-$VERSION/pnpm-store" \
-        "$PRGNAM-$VERSION/vendor" \
-        "$PRGNAM-$VERSION/.hak" \
-        "$PRGNAM-$VERSION/electron-cache" \
-        "$PRGNAM-$VERSION/corepack/pm.tgz"
+        "$WEBNAM-$VERSION/pnpm-store" \
+        "$WEBNAM-$VERSION/vendor" \
+        "$WEBNAM-$VERSION/apps/desktop/.hak" \
+        "$WEBNAM-$VERSION/electron-cache" \
+        "$WEBNAM-$VERSION/corepack/pm.tgz"
 cd "$CWD"
 echo "Removing directory $TMP..."
 rm -r "$TMP"
