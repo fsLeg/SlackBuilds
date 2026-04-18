@@ -15,9 +15,6 @@ The program consists of:
 for information
 3. ocpasswd, a tool to administer simple password files
 
-TCP wrappers support is disabled since ocserv 1.4.2+ can no longer build
-against tcp_wrappers' libwrap.
-
 A user and group "ocserv" must exist prior to running this script.
 To create them, run as root:
   groupadd -g 382 ocserv
