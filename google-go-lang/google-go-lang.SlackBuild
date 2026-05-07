@@ -1,0 +1,199 @@
+#!/bin/bash
+
+# Slackware build script for google-go-lang
+
+# Written by Eric Schultz eric at schultzter.ca
+# Taken over by Vincent Batts vbatts@hashbangbash.com
+# Refactored by Vladislav 'fsLeg' Borisov fsleg@t-rg.ws
+
+# Copyright 2026 Vladislav 'fsLeg' Borisov, Moscow, Russia
+# Copyright (c) 2012, 2013, 2014, 2015, 2016, 2017, 2018  Vincent Batts
+# Copyright (c) 2012 Eric Schultz
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+cd $(dirname $0) ; CWD=$(pwd)
+
+PRGNAM=google-go-lang
+VERSION=${VERSION:-1.26.2}
+BUILD=${BUILD:-1}
+TAG=${TAG:-fsleg}
+PKGTYPE=${PKGTYPE:-txz}
+
+# Bootstrapping order
+GO_BOOTSTRAP=("1.19.13"
+              "1.21.13"
+              "1.23.12"
+              "1.25.9")
+
+if [ -z "$ARCH" ]; then
+  case "$( uname -m )" in
+    i?86) ARCH=i586 ;;
+    arm*) ARCH=arm ;;
+       *) ARCH=$( uname -m ) ;;
+  esac
+fi
+
+if [ "$ARCH" = "i586" ]; then
+  LIBDIRSUFFIX=""
+  GOARCH="386"
+  export GOMAXPROCS=1
+elif [ "$ARCH" = "x86_64" ]; then
+  LIBDIRSUFFIX="64"
+  GOARCH="amd64"
+elif [ "$ARCH" = "arm" ]; then
+  LIBDIRSUFFIX=""
+  GOARCH="arm"
+  export GOARM="7" # can be '5' as well, to use soft float instead of hard float
+  export GOMAXPROCS=1
+elif [ "$ARCH" = "aarch64" ]; then
+  LIBDIRSUFFIX="64"
+  GOARCH="arm64"
+else
+  LIBDIRSUFFIX=""
+  GOARCH=386
+fi
+
+if [ ! -z "${PRINT_PACKAGE_NAME}" ]; then
+  echo "$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE"
+  exit 0
+fi
+
+TMP=${TMP:-/tmp/SBo}
+PKG=$TMP/package-$PRGNAM
+OUTPUT=${OUTPUT:-/tmp}
+
+set -e
+
+rm -rf $TMP
+mkdir -p $TMP $PKG $OUTPUT
+cd $TMP
+rm -rf $PRGNAM-$VERSION
+tar xvf $CWD/go$VERSION.src.tar.gz
+cd go
+
+# Use go version that's already installed to cut down on build times
+# https://go.dev/doc/install/source#go14
+GO_CUR_VER=$(go version | cut -d' ' -f3 | cut -d. -f2)
+if [[ "$GO_CUR_VER" -ge 17 && "$GO_CUR_VER" -lt 20 ]]; then
+  GO_BOOTSTRAP=(${GO_BOOTSTRAP[@]:1})
+elif [[ "$GO_CUR_VER" -ge 20 && "$GO_CUR_VER" -lt 22 ]]; then
+  GO_BOOTSTRAP=(${GO_BOOTSTRAP[@]:2})
+elif [[ "$GO_CUR_VER" -ge 22 && "$GO_CUR_VER" -lt 24 ]]; then
+  GO_BOOTSTRAP=(${GO_BOOTSTRAP[@]:3})
+elif [[ "$GO_CUR_VER" -ge 24 ]]; then
+  unset GO_BOOTSTRAP
+fi
+
+if [[ -v GO_BOOTSTRAP[@] ]]; then
+  mkdir -p bootstrap
+  for GO_VER in ${GO_BOOTSTRAP[@]}; do
+    tar xvf $CWD/go$GO_VER.src.tar.gz -C bootstrap
+    mv bootstrap/go bootstrap/go$GO_VER
+  done
+fi
+
+chown -R root:root .
+find -L . \
+ \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
+  -o -perm 511 \) -exec chmod 755 {} \; -o \
+ \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
+  -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
+
+# as of >= go1.5, the cross-compiler does not need to be bootstrap, so the
+# compiler need only be compiled for the host OS, which it detects
+unset GOBIN GOPATH GOOS GOARCH
+
+# Not sure why, but this causes run.bash to fail --rworkman
+unset BASH_ENV
+
+if [[ -v GO_BOOTSTRAP[@] ]]; then
+  i=0
+  for GO_VER in ${GO_BOOTSTRAP[@]}; do
+    if [[ ! -v GOROOT ]]; then
+      if [[ "$i" -eq 0 ]]; then
+        # gcc 5+ is go1.4 API, so we'll bootstrap with it
+        export GOROOT_BOOTSTRAP=/usr
+      else
+        export GOROOT_BOOTSTRAP=$(realpath bootstrap/go${GO_BOOTSTRAP[$(($i-1))]})
+      fi
+    fi
+    pushd bootstrap/go$GO_VER/src
+      ./make.bash
+    popd
+    unset GOROOT GOROOT_BOOTSTRAP
+    i=$((++i))
+  done
+  export GOROOT_BOOTSTRAP=$(realpath bootstrap/go${GO_BOOTSTRAP[-1]})
+fi
+pushd src
+  if [[ "${RUN_TEST:-false}" == "true" ]] ; then
+    LC_ALL=C \
+      ./all.bash
+  else
+    LC_ALL=C \
+      ./make.bash
+  fi
+popd
+
+# As of go1.5, golang supports shared libraries, so generate them for use.
+GOROOT=$(pwd) ./bin/go install -buildmode=shared std
+
+# The value of GOROOT once the package is installed
+GOROOT_FINAL="/usr/lib$LIBDIRSUFFIX/go$VERSION/go"
+
+mkdir -p $PKG/$GOROOT_FINAL
+cp -aR -t $PKG/$GOROOT_FINAL \
+  api/ bin/ lib/ misc/ pkg/ src/ test/ go.env
+
+# remove tests, nothing needs these at runtime
+find $PKG/$GOROOT_FINAL/src -type d -name "testdata" -exec rm -rf {} +
+find $PKG/$GOROOT_FINAL/src -type f -name "*_test.go" -exec rm -rf {} +
+
+find $PKG/$GOROOT_FINAL -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
+  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
+find $PKG/$GOROOT_FINAL -type f -name "*.so" -exec chmod +x {} \; 2> /dev/null || true
+
+# Put the profile scripts for setting PATH and env variables
+mkdir -p $PKG/etc/profile.d
+cat > $PKG/etc/profile.d/go.csh << EOF
+#!/bin/csh
+setenv GOROOT $GOROOT_FINAL
+setenv PATH \$GOROOT/bin:\$PATH
+EOF
+cat > $PKG/etc/profile.d/go.sh << EOF
+#!/bin/sh
+export GOROOT="$GOROOT_FINAL"
+export PATH="\$GOROOT/bin:\$PATH"
+EOF
+
+chmod 0755 $PKG/etc/profile.d/go.csh
+chmod 0755 $PKG/etc/profile.d/go.sh
+
+mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
+cp -aR \
+  CONTRIBUTING.md LICENSE PATENTS README.md SECURITY.md VERSION doc/ \
+  $PKG/usr/doc/$PRGNAM-$VERSION
+cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
+
+mkdir -p $PKG/install
+cat $CWD/slack-desc > $PKG/install/slack-desc
+
+cd $PKG
+/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE
