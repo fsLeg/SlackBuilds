@@ -31,7 +31,7 @@
 cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=google-go-lang
-VERSION=${VERSION:-1.26.2}
+VERSION=${VERSION:-1.26.3}
 BUILD=${BUILD:-1}
 TAG=${TAG:-fsleg}
 PKGTYPE=${PKGTYPE:-txz}
@@ -40,7 +40,7 @@ PKGTYPE=${PKGTYPE:-txz}
 GO_BOOTSTRAP=("1.19.13"
               "1.21.13"
               "1.23.12"
-              "1.25.9")
+              "1.25.10")
 
 if [ -z "$ARCH" ]; then
   case "$( uname -m )" in
@@ -152,9 +152,6 @@ pushd src
   fi
 popd
 
-# As of go1.5, golang supports shared libraries, so generate them for use.
-GOROOT=$(pwd) ./bin/go install -buildmode=shared std
-
 # The value of GOROOT once the package is installed
 GOROOT_FINAL="/usr/lib$LIBDIRSUFFIX/go$VERSION/go"
 
@@ -172,19 +169,18 @@ find $PKG/$GOROOT_FINAL -type f -name "*.so" -exec chmod +x {} \; 2> /dev/null |
 
 # Put the profile scripts for setting PATH and env variables
 mkdir -p $PKG/etc/profile.d
-cat > $PKG/etc/profile.d/go.csh << EOF
+cat > $PKG/etc/profile.d/go.csh.new << EOF
 #!/bin/csh
 setenv GOROOT $GOROOT_FINAL
 setenv PATH \$GOROOT/bin:\$PATH
 EOF
-cat > $PKG/etc/profile.d/go.sh << EOF
+cat > $PKG/etc/profile.d/go.sh.new << EOF
 #!/bin/sh
 export GOROOT="$GOROOT_FINAL"
 export PATH="\$GOROOT/bin:\$PATH"
 EOF
 
-chmod 0755 $PKG/etc/profile.d/go.csh
-chmod 0755 $PKG/etc/profile.d/go.sh
+chmod 0755 $PKG/etc/profile.d/go.{,c}sh.new
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
 cp -aR \
@@ -194,6 +190,7 @@ cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
 mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc
+cat $CWD/doinst.sh > $PKG/install/doinst.sh
 
 cd $PKG
 /sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE
