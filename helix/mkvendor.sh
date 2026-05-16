@@ -2,6 +2,11 @@
 
 set -e
 
+if [ ! -x "$(which cargo-vendor-filterer)" ]; then
+  echo Please install cargo-vendor-filterer.
+  exit 1
+fi
+
 CWD=$(pwd)
 TMP=$(mktemp -d)
 . "$CWD/helix.info"
@@ -35,7 +40,7 @@ exclude-crate-paths = [
 name = "$PRGNAM"
 EOF
 
-cargo-vendor-filterer || cargo vendor --locked
+cargo-vendor-filterer
 
 mkdir -p .cargo
 cat << EOF > .cargo/config.toml

@@ -2,8 +2,8 @@
 
 set -e
 
-if [ ! -x "$(which jq)" ] || [ ! -x "$(which 7z)" ]; then
-  echo Please install jq and p7zip.
+if [ ! -x "$(which jq)" ] || [ ! -x "$(which 7z)" ] || [ ! -x "$(which cargo-vendor-filterer)" ] ; then
+  echo Please install jq, p7zip and cargo-vendor-filterer.
   exit 1
 fi
 
@@ -114,7 +114,7 @@ exclude-crate-paths = [
   { name = "openssl-src", exclude = "openssl" },
 ]
 EOF
-cargo-vendor-filterer || cargo vendor --locked
+cargo-vendor-filterer
 mkdir -p .cargo
 cat << EOF > .cargo/config.toml
 [source.crates-io]
