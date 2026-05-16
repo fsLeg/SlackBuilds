@@ -7,6 +7,7 @@ TMP=$(mktemp -d)
 . "$CWD/helix.info"
 OUTPUT="${OUTPUT:-$CWD}"
 export CARGO_HOME="$TMP"
+unset XZ_DEFAULTS XZ_OPT
 
 export PATH="/opt/rust/bin:$PATH"
 if [ -z "$LD_LIBRARY_PATH" ]; then
@@ -49,7 +50,11 @@ if [ -f "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz" ]; then
     rm -v "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz"
 fi
 
-tar cfJ "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz" .cargo/ vendor/
+tar --sort=name \
+    --mtime="@$(date --date="$(tar tvf "$CWD/$PRGNAM-$VERSION-source.tar.xz" | head -1 | awk '{print $4" "$5}')" +"%s")" \
+    --owner=0 --group=0 --numeric-owner \
+    --pax-option=exthdr.name=%d/PaxHeaders/%f,delete=atime,delete=ctime \
+    --create .cargo/ vendor/ | xz -6e --threads=1 > "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz"
 
 cd "$CWD"
-rm -rv "$TMP"
+rm -r "$TMP"

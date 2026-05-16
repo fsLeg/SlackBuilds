@@ -134,12 +134,17 @@ if [ -f "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz" ]; then
     rm -v "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz"
 fi
 
-tar cfJ "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz" \
-        "$WEBNAM-$VERSION/pnpm-store" \
-        "$WEBNAM-$VERSION/vendor" \
-        "$WEBNAM-$VERSION/apps/desktop/.hak" \
-        "$WEBNAM-$VERSION/electron-cache" \
-        "$WEBNAM-$VERSION/corepack/pm.tgz"
+unset XZ_DEFAULTS XZ_OPT
+tar --sort=name \
+    --mtime="@$(date --date="$(tar tvf "$CWD/$WEBNAM-$VERSION.tar.gz" | head -1 | awk '{print $4" "$5}')" +"%s")" \
+    --owner=0 --group=0 --numeric-owner \
+    --pax-option=exthdr.name=%d/PaxHeaders/%f,delete=atime,delete=ctime \
+    --create "$WEBNAM-$VERSION/pnpm-store" \
+             "$WEBNAM-$VERSION/vendor" \
+             "$WEBNAM-$VERSION/apps/desktop/.hak" \
+             "$WEBNAM-$VERSION/electron-cache" \
+             "$WEBNAM-$VERSION/corepack/pm.tgz" \
+  | xz -6e --threads=1 > "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz"
 cd "$CWD"
 echo "Removing directory $TMP..."
 rm -r "$TMP"

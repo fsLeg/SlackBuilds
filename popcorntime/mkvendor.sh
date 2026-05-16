@@ -5,11 +5,12 @@ set -e
 CWD="$(pwd)"
 TMP="${TMP:-$(mktemp -d)}"
 . "$CWD/popcorntime.info"
-TARNAM=popcorn-desktop
+TARNAM="popcorn-desktop"
 OUTPUT="${OUTPUT:-$CWD}"
 export YARN_CACHE_FOLDER="$TMP/cache"
 export npm_config_cache="$YARN_CACHE_FOLDER"
 export YARN_YARN_OFFLINE_MIRROR="$TMP/vendor"
+unset XZ_DEFAULTS XZ_OPT
 
 tar xf "$CWD/$TARNAM-$VERSION.tar.gz" -C "$TMP"
 cd "$TMP/$TARNAM-$VERSION"
@@ -53,7 +54,11 @@ if [ -f "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar" ]; then
     rm -v "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar"
 fi
 
-tar cf "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar" -C "$TMP" vendor/
+tar --sort=name \
+    --mtime="@$(date --date="$(tar tvf "$CWD/$TARNAM-$VERSION.tar.gz" | head -1 | awk '{print $4" "$5}')" +"%s")" \
+    --owner=0 --group=0 --numeric-owner \
+    --pax-option=exthdr.name=%d/PaxHeaders/%f,delete=atime,delete=ctime \
+    --create --directory="$TMP" vendor/ | xz -6e --threads=1 > "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz"
 
 cd "$CWD"
-rm -rv "$TMP"
+rm -r "$TMP"
