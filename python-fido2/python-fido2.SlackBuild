@@ -69,16 +69,14 @@ python3 -m installer --destdir "$PKG" dist/*.whl
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
+chmod 644 $PKG/usr/doc/$PRGNAM-$VERSION/examples/server/poetry.lock
+install -Dm644 -t $PKG/etc/udev/rules.d $CWD/70-u2f.rules
+
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
 cp -aR \
-  COPYING COPYING.MPLv2 COPYING.APLv2 NEWS README.adoc examples/\
+  COPYING COPYING.MPLv2 COPYING.APLv2 NEWS README.adoc examples/ \
   $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
-
-chmod 644 $PKG/usr/doc/$PRGNAM-$VERSION/examples/server/poetry.lock
-
-mkdir -p $PKG/etc/udev/rules.d
-cat $CWD/70-u2f.rules > $PKG/etc/udev/rules.d/70-u2f.rules
 
 mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc

@@ -87,12 +87,9 @@ make install INSTALL_ROOT=$PKG
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
-mkdir -p $PKG/usr/share/pixmaps
-cp -a resources/icons/ykman.png $PKG/usr/share/pixmaps
-mkdir -p $PKG/usr/share/metainfo/
-cp -a resources/com.yubico.yubikey_manager.metainfo.xml $PKG/usr/share/metainfo/
-mkdir -p $PKG/usr/share/applications
-cp -a resources/ykman-gui.desktop $PKG/usr/share/applications
+install -Dm644 -t $PKG/usr/share/pixmaps resources/icons/ykman.png
+install -Dm644 -t $PKG/usr/share/metainfo resources/com.yubico.yubikey_manager.metainfo.xml
+install -Dm644 -t $PKG/usr/share/applications resources/ykman-gui.desktop
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
 cp -a \

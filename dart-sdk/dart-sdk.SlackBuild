@@ -72,7 +72,7 @@ find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | gr
   | cut -f 1 -d : | xargs chmod a+x
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cp $CWD/$PRGNAM.SlackBuild  $PKG/usr/doc/$PRGNAM-$VERSION
+cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION
 mv gen-dartdocs $PKG/usr/doc/$PRGNAM-$VERSION/doc
 
 mkdir -p $PKG/etc/profile.d

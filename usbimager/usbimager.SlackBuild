@@ -85,10 +85,13 @@ make -C src install
 
 # make .desktop file compliant
 mv $PKG/usr/share/applications/usbimager.desktop $PKG/usr/share/applications/com.gitlab.bztsrc.$PRGNAM.desktop
-sed -i '/Version=/d' $PKG/usr/share/applications/com.gitlab.bztsrc.$PRGNAM.desktop
-sed -i 's/Application;//' $PKG/usr/share/applications/com.gitlab.bztsrc.$PRGNAM.desktop
+sed -i '/Version=/d; s/Application;//' \
+    $PKG/usr/share/applications/com.gitlab.bztsrc.$PRGNAM.desktop
 
 mv $PKG/usr/share/man $PKG/usr/
+
+find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
+  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
 cp -a \

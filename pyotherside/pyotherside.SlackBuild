@@ -86,10 +86,9 @@ find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | gr
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
 
 if [ "${DOCS:-no}" != "no" ]; then
-  cd docs
+  ( cd docs
   make html
-  cp -aR _build/html $PKG/usr/doc/$PRGNAM-$VERSION/
-  cd ..
+  cp -aR _build/html $PKG/usr/doc/$PRGNAM-$VERSION/ )
 fi
 
 cp -aR \

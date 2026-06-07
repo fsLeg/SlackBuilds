@@ -119,10 +119,6 @@ cp -aR build/Popcorn-Time/linux$BITS $PKG/opt/$PRGNAM
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
-mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cp -a build/Popcorn-Time/linux$BITS/{CHANGELOG.md,LICENSE.txt,README.md,credits.html} $PKG/usr/doc/$PRGNAM-$VERSION/
-cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
-
 mkdir -p $PKG/usr/share/applications
 install -Dm644 dist/linux/appimage/Popcorn-Time.desktop $PKG/usr/share/applications/
 for geometry in 16x16 24x24 32x32 48x48 64x64 96x96 128x128 256x256; do
@@ -132,6 +128,11 @@ done
 
 mkdir -p $PKG/usr/bin
 ln -s /opt/$PRGNAM/Popcorn-Time $PKG/usr/bin/
+
+mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a build/Popcorn-Time/linux$BITS/{CHANGELOG.md,LICENSE.txt,README.md,credits.html} \
+      $PKG/usr/doc/$PRGNAM-$VERSION/
+cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
 mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc
