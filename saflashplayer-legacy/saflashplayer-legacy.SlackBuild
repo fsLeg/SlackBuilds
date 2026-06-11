@@ -61,7 +61,10 @@ set -e
 rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
+rm -rf $PRGNAM-$VERSION
 
+mkdir $PRGNAM-$VERSION
+cd $PRGNAM-$VERSION
 tar xvf $CWD/flashplayer_11_sa.i386.tar.gz
 
 chown -R root:root .
