@@ -2,8 +2,8 @@
 
 set -e
 
-if [ ! -x "$(which jq)" ] || [ ! -x "$(which 7z)" ] || [ ! -x "$(which cargo-vendor-filterer)" ] ; then
-  echo Please install jq, p7zip and cargo-vendor-filterer.
+if [ ! -x "$(which jq)" ] || [ ! -x "$(which cargo-vendor-filterer)" ] ; then
+  echo Please install jq and cargo-vendor-filterer.
   exit 1
 fi
 
@@ -36,12 +36,13 @@ export COREPACK_HOME="$BASE_TMP_DIR/corepack"
 # set up package managers
 mkdir -p "$COREPACK_HOME/bin" "$YARN_YARN_OFFLINE_MIRROR"
 corepack pack -o "$COREPACK_HOME/pm.tgz" \
-  "$(jq -r .packageManager "$WEBNAM-$VERSION/package.json" | cut -d'+' -f1)" \
-  "$(jq -r .packageManager "$WEBNAM-$VERSION/apps/desktop/package.json" | cut -d'+' -f1)" \
+  "$(jq -r '.devEngines.packageManager | "\(.name)@\(.version | sub("\\+.*"; ""))"' "./$WEBNAM-$VERSION/package.json")" \
   "yarn@^1"
 corepack enable --install-directory "$COREPACK_HOME/bin"
 export PATH="$COREPACK_HOME/bin:$PATH"
 pnpm config set store-dir "$XDG_CONFIG_HOME/pnpm-store"
+pnpm config set fetchRetries 5
+pnpm config set fetchTimeout 120000
 
 # element-web
 cd "$TMP/$WEBNAM-$VERSION"
@@ -51,36 +52,41 @@ pnpm install --frozen-lockfile
 cd "apps/desktop"
 
 ## pre-built electron
-EVERSION=$(jq --raw-output '.devDependencies.electron' < package.json)
-mkdir -p "$XDG_CACHE_HOME/electron" "$XDG_CACHE_HOME/electron-builder"
-if [ -e "$CWD/electron-v$EVERSION-linux-x64.zip" ]; then
-  cp "$CWD/electron-v$EVERSION-linux-x64.zip" "$XDG_CACHE_HOME/electron/"
+E_VER="$(jq -r '.devDependencies.electron' < package.json)"
+E_URL_BASE="https://github.com/electron/electron/releases/download/v$E_VER"
+E_CK="$(printf "$E_URL_BASE" | sha256sum | cut -d' ' -f1)"
+mkdir -p "$XDG_CACHE_HOME/electron/$E_CK" "$XDG_CACHE_HOME/electron-builder"
+if [ -e "$CWD/electron-v$E_VER-linux-x64.zip" ]; then
+  cp "$CWD/electron-v$E_VER-linux-x64.zip" "$XDG_CACHE_HOME/electron/"
 else
-  wget --directory-prefix="$XDG_CACHE_HOME/electron" --tries=0 --retry-on-http-error=503 "https://github.com/electron/electron/releases/download/v$EVERSION/electron-v$EVERSION-linux-x64.zip"
+  wget --directory-prefix="$XDG_CACHE_HOME/electron/$E_CK" --tries=0 --retry-on-http-error=503 "$E_URL_BASE/electron-v$E_VER-linux-x64.zip"
 fi
 
 ## element-desktop itself
 pnpm install --frozen-lockfile
 pnpm store add $(python3 -c "
 import yaml
-d = yaml.safe_load(open('../../pnpm-lock.yaml'))
-print('\n'.join(d['importers']['apps/desktop']['dependencies'].keys()))
-print('\n'.join(d['importers']['apps/desktop']['devDependencies'].keys()))
-print('\n'.join(d['packages'].keys()))
+d = yaml.safe_load_all(open('../../pnpm-lock.yaml'))
+for f in d:
+  if 'apps/desktop' in f:
+    print('\n'.join(f.get('importers').get('apps/desktop').get('dependencies').keys()))
+    print('\n'.join(f.get('importers').get('apps/desktop').get('devDependencies').keys()))
+  print('\n'.join(f.get('packages').keys()))
 ") || true
 pnpm add '@esbuild/linux-x64'
 
 ## pre-built ruby for electron-builder
-FPM_RUBY=$(grep linux-amd64 ../../node_modules/app-builder-lib/out/toolsets/linux.js | head -1 | cut -d'"' -f2)
-FPM_RUBY_TAG=$(grep 'const fpmPath' ../../node_modules/app-builder-lib/out/toolsets/linux.js | head -1 | cut -d'"' -f2)
-mkdir -p "$XDG_CACHE_HOME/electron-builder/$FPM_RUBY_TAG/$FPM_RUBY_TAG-${FPM_RUBY%.7z}"
+ABL_PATH="$(find ../.. -name linux.js -type f | grep app-builder-lib)"
+FPM_RUBY=$(grep linux-amd64 "$ABL_PATH" | head -1 | cut -d'"' -f2)
+FPM_RUBY_TAG=$(grep 'const fpmPath' "$ABL_PATH" | head -1 | cut -d'"' -f2)
+FPM_URL_BASE="https://github.com/electron-userland/electron-builder-binaries/releases/download/$FPM_RUBY_TAG"
+FPM_CK="$(printf "$FPM_URL_BASE" | sha256sum | cut -d' ' -f1)"
+mkdir -p "$XDG_CACHE_HOME/electron-builder/downloads/$FPM_CK"
 if [ -e "$CWD/$FPM_RUBY" ]; then
-  cp "$CWD/$FPM_RUBY" "$XDG_CACHE_HOME/electron-builder/"
+  cp "$CWD/$FPM_RUBY" "$XDG_CACHE_HOME/electron-builder/downloads/$FPM_CK/"
 else
-  wget --directory-prefix="$XDG_CACHE_HOME/electron-builder/" --tries=0 --retry-on-http-error=503 "https://github.com/electron-userland/electron-builder-binaries/releases/download/$FPM_RUBY_TAG/$FPM_RUBY"
+  wget --directory-prefix="$XDG_CACHE_HOME/electron-builder/downloads/$FPM_CK" --tries=0 --retry-on-http-error=503 "$FPM_URL_BASE/$FPM_RUBY"
 fi
-7z x -o"$XDG_CACHE_HOME/electron-builder/$FPM_RUBY_TAG/$FPM_RUBY_TAG-${FPM_RUBY%.7z}" "$XDG_CACHE_HOME/electron-builder/$FPM_RUBY"
-rm "$XDG_CACHE_HOME/electron-builder/$FPM_RUBY"
 
 ## matrix-seshat
 RUST_PLATFORM=$(rustc -Vv | awk '/host/ {print $2}')
@@ -135,11 +141,12 @@ tar --sort=name \
     --mtime="@$(date --date="$(tar tvf "$CWD/$WEBNAM-$VERSION.tar.gz" | head -1 | awk '{print $4" "$5}')" +"%s")" \
     --owner=0 --group=0 --numeric-owner \
     --pax-option=exthdr.name=%d/PaxHeaders/%f,delete=atime,delete=ctime \
-    --create "$WEBNAM-$VERSION/pnpm-store" \
-             "$WEBNAM-$VERSION/vendor" \
-             "$WEBNAM-$VERSION/apps/desktop/.hak" \
-             "$WEBNAM-$VERSION/electron-cache" \
-             "$WEBNAM-$VERSION/corepack/pm.tgz" \
+    --create \
+    "$WEBNAM-$VERSION/pnpm-store" \
+    "$WEBNAM-$VERSION/vendor" \
+    "$WEBNAM-$VERSION/apps/desktop/.hak" \
+    "$WEBNAM-$VERSION/electron-cache" \
+    "$WEBNAM-$VERSION/corepack/pm.tgz" \
   | xz -6e --threads=1 > "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz"
 cd "$CWD"
 echo "Removing directory $TMP..."
