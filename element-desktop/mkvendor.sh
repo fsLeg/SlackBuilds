@@ -76,9 +76,9 @@ for f in d:
 pnpm add '@esbuild/linux-x64'
 
 ## pre-built ruby for electron-builder
-ABL_PATH="$(find ../.. -name linux.js -type f | grep app-builder-lib)"
-FPM_RUBY=$(grep linux-amd64 "$ABL_PATH" | head -1 | cut -d'"' -f2)
-FPM_RUBY_TAG=$(grep 'const fpmPath' "$ABL_PATH" | head -1 | cut -d'"' -f2)
+ABL_PATH="$(dirname $(find ../.. -name linux.js -type f | grep app-builder-lib))"
+FPM_RUBY=$(grep linux-amd64 "$ABL_PATH/linux.js" | head -1 | cut -d'"' -f2)
+FPM_RUBY_TAG=$(grep 'const fpmPath' "$ABL_PATH/linux.js" | head -1 | cut -d'"' -f2)
 FPM_URL_BASE="https://github.com/electron-userland/electron-builder-binaries/releases/download/$FPM_RUBY_TAG"
 FPM_CK="$(printf "$FPM_URL_BASE" | sha256sum | cut -d' ' -f1)"
 mkdir -p "$XDG_CACHE_HOME/electron-builder/downloads/$FPM_CK"
@@ -86,6 +86,18 @@ if [ -e "$CWD/$FPM_RUBY" ]; then
   cp "$CWD/$FPM_RUBY" "$XDG_CACHE_HOME/electron-builder/downloads/$FPM_CK/"
 else
   wget --directory-prefix="$XDG_CACHE_HOME/electron-builder/downloads/$FPM_CK" --tries=0 --retry-on-http-error=503 "$FPM_URL_BASE/$FPM_RUBY"
+fi
+
+## pre-built 7zip for electron-builder
+ZIP7="7zip-linux-x64.tar.gz"
+ZIP7_TAG=$(grep 'releaseName' "$ABL_PATH/7zip.js" | cut -d'`' -f2)
+ZIP7_URL_BASE="https://github.com/electron-userland/electron-builder-binaries/releases/download/$ZIP7_TAG"
+ZIP7_CK="$(printf "$ZIP7_URL_BASE" | sha256sum | cut -d' ' -f1)"
+mkdir -p "$XDG_CACHE_HOME/electron-builder/downloads/$ZIP7_CK"
+if [ -e "$CWD/$ZIP7" ]; then
+  cp "$CWD/$ZIP7" "$XDG_CACHE_HOME/electron-builder/downloads/$ZIP7_CK/"
+else
+  wget --directory-prefix="$XDG_CACHE_HOME/electron-builder/downloads/$ZIP7_CK" --tries=0 --retry-on-http-error=503 "$ZIP7_URL_BASE/$ZIP7"
 fi
 
 ## matrix-seshat
