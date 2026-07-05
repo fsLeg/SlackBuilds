@@ -82,7 +82,10 @@ find -L . \
   -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
 
 # fix detecting libs for plugins
-sed -i 's/echo/echo -e/g' Makefile.Linux
+# replace forgotten placeholders
+sed -i "s/echo/echo -e/g
+        /add3proxyuser/a\\\tsed -i -e 's|@CMAKE_INSTALL_FULL_BINDIR@|\$(exec_prefix)/bin|g' -e 's|@3PROXY_CONFDIR@|/etc/3proxy|g' -e 's|@CRYPT_PREFIX@|\$(CRYPT_PREFIX)|g' \$(BINDIR)/add3proxyuser" \
+    Makefile.Linux
 
 CFLAGS="$SLKCFLAGS" \
 make -f Makefile.Linux
