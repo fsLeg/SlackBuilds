@@ -10,11 +10,13 @@ download and play the game through PrismLauncher.
 To build PrismLauncher you can use any JDK version (8..25) and variant
 (Oracle JDK, OpenJDK, Zulu OpenJDK). Keep in mind, however, that in
 order to run different mods and Minecraft versions you may need
-different Java versions.
+different Java versions. PrismLauncher includes Java downloader which
+you can use to install an appropriate version locally.
 
-1.20.5 or newer: Java SE 21
-1.17 to 1.20.4:  Java SE 17
-1.16 or older:   Java SE 8
+26.1 and newer:    JRE 25
+1.20.5 to 1.21.11: JRE 21
+1.17 to 1.20.4:    JRE 17
+1.16 or older:     JRE 8
 
 Optional dependencies are:
 - scdoc: if present at build time, a man page for PrismLauncher will be
