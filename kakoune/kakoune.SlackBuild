@@ -1,0 +1,97 @@
+#!/bin/bash
+
+# Slackware build script for kakoune
+
+# Oritinally written by Leonardo Citrolo.
+# Previously maintained by B. Watson (urchlay@slackware.uk).
+# Current maintainer: Vladislav 'fsLeg' Borisov
+
+# Licensed under the WTFPL. See http://www.wtfpl.net/txt/copying/ for details.
+
+# 20260720 fsLeg:
+# - new maintainer;
+# - updated to version 2026.05.21
+# - don't patch CXXFLAGS in Makefile, they are applied properly as is
+# - patch installation paths to adhere to Slackware's standards
+
+# 20250618 bkw: update for v2025.06.03.
+# 20240813 bkw: update for v2024.05.18.
+# 20231108 bkw: update for v2023.08.05.
+# 20230509 bkw:
+# - new maintainer.
+# - update for v2022.10.31.
+# - relicense as WTFPL with permission from original author.
+# - override -O3 with $SLKCFLAGS.
+
+cd $(dirname $0) ; CWD=$(pwd)
+
+PRGNAM=kakoune
+VERSION=${VERSION:-2026.05.21}
+BUILD=${BUILD:-1}
+TAG=${TAG:-_SBo}
+PKGTYPE=${PKGTYPE:-tgz}
+
+if [ -z "$ARCH" ]; then
+  case "$( uname -m )" in
+    i?86) ARCH=i586 ;;
+    arm*) ARCH=arm ;;
+       *) ARCH=$( uname -m ) ;;
+  esac
+fi
+
+if [ ! -z "${PRINT_PACKAGE_NAME}" ]; then
+  echo "$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE"
+  exit 0
+fi
+
+TMP=${TMP:-/tmp/SBo}
+PKG=$TMP/package-$PRGNAM
+OUTPUT=${OUTPUT:-/tmp}
+
+if [ "$ARCH" = "i586" ]; then
+  SLKCFLAGS="-O2 -march=i586 -mtune=i686"
+elif [ "$ARCH" = "i686" ]; then
+  SLKCFLAGS="-O2 -march=i686 -mtune=i686"
+elif [ "$ARCH" = "x86_64" ]; then
+  SLKCFLAGS="-O2 -fPIC"
+else
+  SLKCFLAGS="-O2"
+fi
+
+set -e
+
+rm -rf $PKG
+mkdir -p $TMP $PKG $OUTPUT
+cd $TMP
+rm -rf $PRGNAM-$VERSION
+tar xvf $CWD/$PRGNAM-$VERSION.tar.bz2
+cd $PRGNAM-$VERSION
+chown -R root:root .
+rm libexec/kak/kak   # dangling symlink
+find -L .  -perm /111 -a \! -perm 755 -a -exec chmod 755 {} \+ -o \
+        \! -perm /111 -a \! -perm 644 -a -exec chmod 644 {} \+
+
+# fix paths
+sed -i "/^docdir/s|/share.*|/doc/$PRGNAM-$VERSION|
+        /^mandir/s|/share||" \
+  Makefile
+
+make CXXFLAGS="$SLKCFLAGS"
+make DESTDIR=$PKG \
+     PREFIX=/usr \
+     install-strip
+
+# Man page already gzipped, we stripped the binary above. Thought
+# about symlinking all the asciidoc from /usr/share/kak to our doc
+# dir, but it's intended to be read from within kak, with the :doc
+# command.
+
+cp -aLt $PKG/usr/doc/$PRGNAM-$VERSION \
+  CHANGELOG CONTRIBUTING UNLICENSE VIMTOKAK
+cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
+
+mkdir -p $PKG/install
+cat $CWD/slack-desc > $PKG/install/slack-desc
+
+cd $PKG
+/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE
