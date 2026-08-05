@@ -67,6 +67,10 @@ cd $PKG/opt
 
 unzip $CWD/dartsdk-linux-$PKG_PLATFORM-release.zip
 unzip $CWD/dartdocs-gen-api.zip
+chown -R root:root .
+find . ! -type l    -a \( \
+  \(     -perm /111 -a ! -perm 755 -a -exec chmod -f 755 {} + \) -o \
+  \(   ! -perm /111 -a ! -perm 644 -a -exec chmod -f 644 {} + \) \)
 
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs chmod a+x
