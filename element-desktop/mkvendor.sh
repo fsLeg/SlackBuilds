@@ -24,17 +24,14 @@ cd "$TMP"
 tar xf "$CWD/$WEBNAM-$VERSION.tar.gz"
 
 BASE_TMP_DIR="$TMP/$WEBNAM-$VERSION"
-export YARN_YARN_OFFLINE_MIRROR="$BASE_TMP_DIR/vendor"
-export YARN_CACHE_FOLDER="$BASE_TMP_DIR/cache"
 export npm_config_cache="$YARN_CACHE_FOLDER"
 export npm_config_nodedir=/usr
 export XDG_CACHE_HOME="$BASE_TMP_DIR/electron-cache"
 export XDG_CONFIG_HOME="$BASE_TMP_DIR"
-export CARGO_HOME="$BASE_TMP_DIR/cargo"
 export COREPACK_HOME="$BASE_TMP_DIR/corepack"
 
 # set up package managers
-mkdir -p "$COREPACK_HOME/bin" "$YARN_YARN_OFFLINE_MIRROR"
+mkdir -p "$COREPACK_HOME/bin"
 corepack pack -o "$COREPACK_HOME/pm.tgz" \
   "$(jq -r '.devEngines.packageManager | "\(.name)@\(.version | sub("\\+.*"; ""))"' "./$WEBNAM-$VERSION/package.json")" \
   "yarn@^1"
@@ -43,6 +40,36 @@ export PATH="$COREPACK_HOME/bin:$PATH"
 pnpm config set store-dir "$XDG_CONFIG_HOME/pnpm-store"
 pnpm config set fetchRetries 5
 pnpm config set fetchTimeout 120000
+
+# matrix-seshat
+SESHATVERSION=$(jq --raw-output '.dependencies."@matrix-org/seshat"' < $WEBNAM-$VERSION/apps/desktop/package.json | tr -d '^')
+tar xf "$CWD/seshat-$SESHATVERSION.tar.gz"
+pushd "seshat-$SESHATVERSION/seshat-node"
+export YARN_YARN_OFFLINE_MIRROR="$(pwd)/.yarn-vendor"
+export YARN_CACHE_FOLDER="$(pwd)/.yarn-cache"
+export CARGO_HOME="$(pwd)/.cargo"
+mkdir -p "$YARN_YARN_OFFLINE_MIRROR"
+yarn install --frozen-lockfile
+
+## native extensions
+cat << EOF >> Cargo.toml
+[package.metadata.vendor-filter]
+platforms = ["x86_64-unknown-linux-gnu", "aarch64-unknown-linux-gnu"]
+all-features = true
+exclude-crate-paths = [
+  { name = "openssl-src", exclude = "openssl" },
+]
+EOF
+cargo-vendor-filterer .cargo-vendor
+mkdir -p .cargo
+cat << EOF > .cargo/config.toml
+[source.crates-io]
+replace-with = 'vendored-sources'
+
+[source.vendored-sources]
+directory = '.cargo-vendor'
+EOF
+popd
 
 # element-web
 cd "$TMP/$WEBNAM-$VERSION"
@@ -63,6 +90,8 @@ else
 fi
 
 ## element-desktop itself
+cp -a ../../../seshat-$SESHATVERSION/seshat-node ./
+pnpm link ./seshat-node
 pnpm install --frozen-lockfile
 pnpm store add $(python3 -c "
 import yaml
@@ -100,47 +129,6 @@ else
   wget --directory-prefix="$XDG_CACHE_HOME/electron-builder/downloads/$ZIP7_CK" --tries=0 --retry-on-http-error=503 "$ZIP7_URL_BASE/$ZIP7"
 fi
 
-## matrix-seshat
-RUST_PLATFORM=$(rustc -Vv | awk '/host/ {print $2}')
-SESHATVERSION=$(jq --raw-output '.hakDependencies."matrix-seshat"' < package.json | tr -d '^')
-mkdir -p .hak/hakModules ".hak/matrix-seshat/$RUST_PLATFORM"
-if [ -e "$CWD/seshat-$SESHATVERSION.tar.gz" ]; then
-  cp "$CWD/seshat-$SESHATVERSION.tar.gz" .hak/
-else
-  wget --directory-prefix=.hak --tries=0 --retry-on-http-error=503 "https://github.com/matrix-org/seshat/archive/$SESHATVERSION/seshat-$SESHATVERSION.tar.gz"
-fi
-tar xf ".hak/seshat-$SESHATVERSION.tar.gz" -C .hak "seshat-$SESHATVERSION/seshat-node"
-mv ".hak/seshat-$SESHATVERSION/seshat-node" .hak/hakModules/matrix-seshat
-ln -s ../../hakModules/matrix-seshat ".hak/matrix-seshat/$RUST_PLATFORM/build"
-rm -r ".hak/seshat-$SESHATVERSION.tar.gz" ".hak/seshat-$SESHATVERSION"
-
-pushd ".hak/matrix-seshat/$RUST_PLATFORM/build"
-jq '.packageManager = "yarn@1.22.22"' package.json > tmp.json && mv tmp.json package.json
-yarn install --frozen-lockfile
-yarn cache clean
-
-## native extensions
-cat << EOF >> Cargo.toml
-[package.metadata.vendor-filter]
-platforms = ["x86_64-unknown-linux-gnu", "aarch64-unknown-linux-gnu"]
-all-features = true
-exclude-crate-paths = [
-  { name = "openssl-src", exclude = "openssl" },
-]
-EOF
-cargo-vendor-filterer
-mkdir -p .cargo
-cat << EOF > .cargo/config.toml
-[source.crates-io]
-replace-with = 'vendored-sources'
-
-[source.vendored-sources]
-directory = 'vendor'
-EOF
-popd
-
-rm -rf pnpm .hak/hakModules/matrix-seshat/{node_modules,target}
-
 # vendor everything
 cd "$TMP"
 
@@ -155,8 +143,9 @@ tar --sort=name \
     --pax-option=exthdr.name=%d/PaxHeaders/%f,delete=atime,delete=ctime \
     --create \
     "$WEBNAM-$VERSION/pnpm-store" \
-    "$WEBNAM-$VERSION/vendor" \
-    "$WEBNAM-$VERSION/apps/desktop/.hak" \
+    "seshat-$SESHATVERSION/seshat-node/.yarn-vendor" \
+    "seshat-$SESHATVERSION/seshat-node/.cargo-vendor" \
+    "seshat-$SESHATVERSION/seshat-node/.cargo/config.toml" \
     "$WEBNAM-$VERSION/electron-cache" \
     "$WEBNAM-$VERSION/corepack/pm.tgz" \
   | xz -6e --threads=1 > "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz"
