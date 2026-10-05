@@ -48,26 +48,23 @@ TMP=${TMP:-/tmp/SBo}
 PKG=$TMP/package-$PRGNAM
 OUTPUT=${OUTPUT:-/tmp}
 
-if [ "$ARCH" == "x86_64" ]; then
-    PKG_PLATFORM="x64"
-elif [ "$ARCH" == "i586" ]; then
-    PKG_PLATFORM="ia32"
-elif [ "$ARCH" == "arm" ]; then
-    PKG_PLATFORM="arm"
+if [ "$ARCH" = "i586" -o "$ARCH" = "i686" ]; then
+  PKG_PLATFORM="ia32"
+elif [ "$ARCH" = "x86_64" ]; then
+  PKG_PLATFORM="x64"
+elif [ "$ARCH" = "arm" ]; then
+  PKG_PLATFORM="arm"
+elif [ "$ARCH" = "aarch64" ]; then
+  PKG_PLATFORM="arm64"
 fi
 
 set -e
 
 rm -rf $PKG
-mkdir -p $TMP $PKG $OUTPUT
-cd $TMP
-
-mkdir -p $PKG/opt
+mkdir -p $TMP $PKG/opt $OUTPUT
 cd $PKG/opt
-
 unzip $CWD/dartsdk-linux-$PKG_PLATFORM-release.zip
 unzip $CWD/dartdocs-gen-api.zip
-chown -R root:root .
 find . ! -type l    -a \( \
   \(     -perm /111 -a ! -perm 755 -a -exec chmod -f 755 {} + \) -o \
   \(   ! -perm /111 -a ! -perm 644 -a -exec chmod -f 644 {} + \) \)
@@ -75,20 +72,19 @@ find . ! -type l    -a \( \
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs chmod a+x
 
-mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
-mv gen-dartdocs $PKG/usr/doc/$PRGNAM-$VERSION/doc
-
 mkdir -p $PKG/etc/profile.d
 install -Dm755 -t $PKG/etc/profile.d $CWD/dart-sdk.*sh.new
+
+chmod +rx $PKG/opt/dart-sdk{,/bin{,/snapshots}}
+chmod +x  $PKG/opt/dart-sdk/bin/resources{,/dartdoc}
+PKGDOC=$PKG/usr/doc/$PRGNAM-$VERSION
+mkdir -p $PKGDOC
+cat $CWD/$PRGNAM.SlackBuild > $PKGDOC/$PRGNAM.SlackBuild
+mv gen-dartdocs $PKGDOC/doc
 
 mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc
 cat $CWD/doinst.sh > $PKG/install/doinst.sh
 
-chmod +x $PKG/opt/dart-sdk/bin/resources
-chmod +x $PKG/opt/dart-sdk/bin/resources/dartdoc/
-
 cd $PKG
-chmod +rx opt/dart-sdk opt/dart-sdk/bin opt/dart-sdk/bin/snapshots/
 /sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE

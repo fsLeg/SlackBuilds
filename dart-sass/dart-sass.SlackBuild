@@ -56,19 +56,18 @@ fi
 
 set -e
 
-rm -rf $PKG $TMP/$PRGNAM-$VERSION
+rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
-
-tar xvf $CWD/$PRGNAM-$VERSION.tar.gz
+rm -rf $PRGNAM-$VERSION
+tar xvf $CWD/$PRGNAM-$VERSION.tar.gz --no-same-owner
 cd $PRGNAM-$VERSION
-chown -R root:root $PKG
+tar xvf $CWD/$PRGNAM-$VERSION-vendored-sources.tar.xz --no-same-owner
+tar xvf $CWD/sass-embedded-protocol-$EMBEDDED_PROTOCOL_VERSION.tar.gz --no-same-owner
 find $PKG ! -type l    -a \( \
   \(        -perm /111 -a ! -perm 755 -a -exec chmod -f 755 {} + \) -o \
   \(      ! -perm /111 -a ! -perm 644 -a -exec chmod -f 644 {} + \) \)
 
-tar xvf $CWD/$PRGNAM-$VERSION-vendored-sources.tar.xz
-tar xvf $CWD/sass-embedded-protocol-$EMBEDDED_PROTOCOL_VERSION.tar.gz
 mkdir -p build
 mv sass-embedded-protocol-$EMBEDDED_PROTOCOL_VERSION build/language
 export PUB_CACHE=vendor/pub-cache
@@ -96,10 +95,12 @@ EOF
 chmod +x $PKG/usr/bin/sass
 install -Dm644 -t $PKG/usr/lib$LIBDIRSUFFIX/$PRGNAM/ build/sass.snapshot-$ARCH
 
-mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cp -a README.md AUTHORS CHANGELOG.md CONTRIBUTING.md LICENSE \
-  $PKG/usr/doc/$PRGNAM-$VERSION/
-cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
+PKGDOC=$PKG/usr/doc/$PRGNAM-$VERSION
+mkdir -p $PKGDOC
+cp -a \
+  README.md AUTHORS CHANGELOG.md CONTRIBUTING.md LICENSE \
+  $PKGDOC
+cat $CWD/$PRGNAM.SlackBuild > $PKGDOC/$PRGNAM.SlackBuild
 
 mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc

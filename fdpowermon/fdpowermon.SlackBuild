@@ -47,24 +47,29 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $PRGNAM-$PRGNAM-$VERSION
-tar xvf $CWD/$PRGNAM-$PRGNAM-$VERSION.tar.gz
+tar xvf $CWD/$PRGNAM-$PRGNAM-$VERSION.tar.gz --no-same-owner
 cd $PRGNAM-$PRGNAM-$VERSION
+find . ! -type l    -a \( \
+  \(     -perm /111 -a ! -perm 755 -a -exec chmod -f 755 {} + \) -o \
+  \(   ! -perm /111 -a ! -perm 644 -a -exec chmod -f 644 {} + \) \)
+
 mkdir -p $PKG/usr/bin $PKG/etc/$PRGNAM $PKG/usr/share/icons/oxygen/base/22x22/status
 cp fdpowermon $PKG/usr/bin/
 cp theme.cfg $PKG/etc/$PRGNAM/
 cp icons/*.png $PKG/usr/share/icons/oxygen/base/22x22/status/
-chown -R root:root $PKG
-find $PKG ! -type l    -a \( \
-  \(        -perm /111 -a ! -perm 755 -a -exec chmod -f 755 {} + \) -o \
-  \(      ! -perm /111 -a ! -perm 644 -a -exec chmod -f 644 {} + \) \)
-
-mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION/examples
-cp -a debian/copyright debian/changelog README.md $PKG/usr/doc/$PRGNAM-$VERSION/
-cp -a theme.pl $PKG/usr/doc/$PRGNAM-$VERSION/examples/
-cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
 mkdir -p $PKG/usr/man/man1
 pod2man < fdpowermon | gzip -9 -c > $PKG/usr/man/man1/fdpowermon.1.gz
+
+PKGDOC=$PKG/usr/doc/$PRGNAM-$VERSION
+mkdir -p $PKGDOC/examples
+cp -a \
+  debian/copyright debian/changelog README.md \
+  $PKGDOC
+cp -a \
+  theme.pl \
+  $PKGDOC/examples
+cat $CWD/$PRGNAM.SlackBuild > $PKGDOC/$PRGNAM.SlackBuild
 
 mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc

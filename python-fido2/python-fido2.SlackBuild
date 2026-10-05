@@ -54,9 +54,8 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $TARNAM-$VERSION
-tar xvf $CWD/$TARNAM-$VERSION.tar.gz
+tar xvf $CWD/$TARNAM-$VERSION.tar.gz --no-same-owner
 cd $TARNAM-$VERSION
-chown -R root:root .
 find . ! -type l    -a \( \
   \(     -perm /111 -a ! -perm 755 -a -exec chmod -f 755 {} + \) -o \
   \(   ! -perm /111 -a ! -perm 644 -a -exec chmod -f 644 {} + \) \)
@@ -67,14 +66,15 @@ python3 -m installer --destdir "$PKG" dist/*.whl
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
-chmod 644 $PKG/usr/doc/$PRGNAM-$VERSION/examples/server/poetry.lock
 install -Dm644 -t $PKG/etc/udev/rules.d $CWD/70-u2f.rules
 
-mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cp -aR \
+PKGDOC=$PKG/usr/doc/$PRGNAM-$VERSION
+mkdir -p $PKGDOC
+cp -a \
   COPYING COPYING.MPLv2 COPYING.APLv2 NEWS README.adoc examples/ \
-  $PKG/usr/doc/$PRGNAM-$VERSION
-cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
+  $PKGDOC
+chmod 644 $PKGDOC/examples/server/poetry.lock
+cat $CWD/$PRGNAM.SlackBuild > $PKGDOC/$PRGNAM.SlackBuild
 
 mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc

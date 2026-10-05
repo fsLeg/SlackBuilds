@@ -53,16 +53,10 @@ TMP=${TMP:-/tmp/SBo}
 PKG=$TMP/package-$PRGNAM
 OUTPUT=${OUTPUT:-/tmp}
 
-if [ "$ARCH" = "i586" ]; then
-  SLKCFLAGS="-O2 -march=i586 -mtune=i686"
-  LIBDIRSUFFIX=""
-elif [ "$ARCH" = "i686" ]; then
+if [ "$ARCH" = "i686" ]; then
   SLKCFLAGS="-O2 -march=i686 -mtune=i686"
   LIBDIRSUFFIX=""
-elif [ "$ARCH" = "x86_64" ]; then
-  SLKCFLAGS="-O2 -fPIC"
-  LIBDIRSUFFIX="64"
-elif [ "$ARCH" = "aarch64" ]; then
+elif [ "$ARCH" = "x86_64" -o "$ARCH" = "aarch64" ]; then
   SLKCFLAGS="-O2 -fPIC"
   LIBDIRSUFFIX="64"
 else
@@ -70,20 +64,22 @@ else
   LIBDIRSUFFIX=""
 fi
 
+if [ "$ARCH" = "arm" ]; then
+  TRIPLET="$ARCH-unknown-linux-gnueabihf"
+else
+  TRIPLET="$ARCH-unknown-linux-gnu"
+fi
+
 set -e
 
 rm -rf $PKG $TMP/$PRGNAM-$VERSION
 mkdir -p $TMP/$PRGNAM-$VERSION $PKG $OUTPUT
 cd $TMP/$PRGNAM-$VERSION
-tar xvf $CWD/$PRGNAM-$VERSION-source.tar.xz
-tar xvf $CWD/$PRGNAM-$VERSION-vendored-sources.tar.xz -C ../
-chown -R root:root .
-find . ! -type l    -a \( \
+tar xvf $CWD/$PRGNAM-$VERSION-source.tar.xz --no-same-owner
+tar xvf $CWD/$PRGNAM-$VERSION-vendored-sources.tar.xz --no-same-owner -C ../
+find . ! -type l    -a \
   \(     -perm /111 -a ! -perm 755 -a -exec chmod -f 755 {} + \) -o \
-  \(   ! -perm /111 -a ! -perm 644 -a -exec chmod -f 644 {} + \) \)
-
-# Grammar sources are bundled, no need to fetch them again
-patch -p1 < $CWD/disable-grammar-fetching.patch
+  \(   ! -perm /111 -a ! -perm 644 -a -exec chmod -f 644 {} + \)
 
 export PATH="/opt/rust/bin:$PATH"
 if [ -z "$LD_LIBRARY_PATH" ]; then
@@ -92,12 +88,18 @@ else
   export LD_LIBRARY_PATH="/opt/rust/lib$LIBDIRSUFFIX:$LD_LIBRARY_PATH"
 fi
 
+# Grammar sources are bundled, no need to fetch them again
+patch -p1 < $CWD/disable-grammar-fetching.patch
+
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
 RUSTFLAGS="-C target-cpu=native" \
 CARGO_HOME=".cargo" \
 HELIX_DEFAULT_RUNTIME=/usr/lib$LIBDIRSUFFIX/$PRGNAM \
-cargo build --frozen --profile opt
+cargo build \
+  --frozen \
+  --target $TRIPLET \
+  --profile opt
 
 mkdir -p $PKG/usr/bin \
          $PKG/usr/lib$LIBDIRSUFFIX/$PRGNAM \
@@ -105,7 +107,7 @@ mkdir -p $PKG/usr/bin \
          $PKG/usr/share/fish/vendor_completions.d \
          $PKG/usr/share/zsh/site-functions \
          $PKG/usr/share/applications
-install -Dm 755 -t $PKG/usr/bin target/opt/hx
+install -Dm 755 -t $PKG/usr/bin target/$TRIPLET/opt/hx
 cp -R runtime/queries $PKG/usr/lib$LIBDIRSUFFIX/$PRGNAM/
 cp -R runtime/themes $PKG/usr/lib$LIBDIRSUFFIX/$PRGNAM/
 mkdir -p $PKG/usr/lib$LIBDIRSUFFIX/$PRGNAM/grammars
@@ -124,15 +126,16 @@ done
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
-mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
+PKGDOC=$PKG/usr/doc/$PRGNAM-$VERSION
+mkdir -p $PKGDOC
 cp -a \
   LICENSE README.md CHANGELOG.md docs/*.md \
-  $PKG/usr/doc/$PRGNAM-$VERSION
-cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
+  $PKGDOC
+cat $CWD/$PRGNAM.SlackBuild > $PKGDOC/$PRGNAM.SlackBuild
 
 if [ "${DOCS:-no}" != "no" ]; then
-  mdbook build --dest-dir $PKG/usr/doc/$PRGNAM-$VERSION/html book
-  rm -rf $PKG/usr/doc/$PRGNAM-$VERSION/html/{CNAME,404.html,.nojekyll,generated}
+  mdbook build --dest-dir $PKGDOC/html book
+  rm -rf $PKGDOC/html/{CNAME,404.html,.nojekyll,generated}
 fi
 
 mkdir -p $PKG/install

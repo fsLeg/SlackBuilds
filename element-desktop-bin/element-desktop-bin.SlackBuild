@@ -50,8 +50,7 @@ TMP=${TMP:-/tmp/SBo}
 PKG=$TMP/package-$PRGNAM
 OUTPUT=${OUTPUT:-/tmp}
 
-if [ "$ARCH" = "i586" ]; then
-  DEBARCH="i386"
+if [ "$ARCH" = "i586" -o "$ARCH" = "i686" ]; then
   echo "This package is currently only available for 64bit."
   exit 1
 elif [ "$ARCH" = "x86_64" ]; then
@@ -66,9 +65,8 @@ set -e
 rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $PKG
-ar p $CWD/${DEBNAM}_${SRCVERSION}_amd64.deb data.tar.xz | tar Jxv
+ar p $CWD/${DEBNAM}_${SRCVERSION}_amd64.deb data.tar.xz | tar -Jxv  --no-same-owner
 
-chown -R root:root .
 find . ! -type l    -a \( \
   \(     -perm /111 -a ! -perm 755 -a -exec chmod -f 755 {} + \) -o \
   \(   ! -perm /111 -a ! -perm 644 -a -exec chmod -f 644 {} + \) \)
@@ -76,11 +74,13 @@ find . ! -type l    -a \( \
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
-mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cp -a $PKG/usr/share/doc/$DEBNAM/* $PKG/opt/Element/LICENSE* \
-  $PKG/usr/doc/$PRGNAM-$VERSION
+PKGDOC=$PKG/usr/doc/$PRGNAM-$VERSION
+mkdir -p $PKGDOC
+cp -a \
+  $PKG/usr/share/doc/$DEBNAM/* $PKG/opt/Element/LICENSE* \
+  $PKGDOC
 rm -rf $PKG/usr/share/doc
-cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
+cat $CWD/$PRGNAM.SlackBuild > $PKGDOC/$PRGNAM.SlackBuild
 
 mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc
