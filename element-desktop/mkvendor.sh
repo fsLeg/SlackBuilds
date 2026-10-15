@@ -37,6 +37,8 @@ corepack pack -o "$COREPACK_HOME/pm.tgz" \
   "yarn@^1"
 corepack enable --install-directory "$COREPACK_HOME/bin"
 export PATH="$COREPACK_HOME/bin:$PATH"
+ln -sf ../v1/pnpm/$(pnpm --version)/bin/pnpm.mjs $COREPACK_HOME/bin/pnpm
+ln -sf ../v1/pnpm/$(pnpm --version)/bin/pnpx.mjs $COREPACK_HOME/bin/pnpx
 pnpm config set store-dir "$XDG_CONFIG_HOME/pnpm-store"
 pnpm config set fetchRetries 5
 pnpm config set fetchTimeout 120000
