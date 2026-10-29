@@ -32,16 +32,16 @@ export COREPACK_HOME="$BASE_TMP_DIR/corepack"
 
 # set up package managers
 mkdir -p "$COREPACK_HOME/bin"
+PNPMVER="$(jq -r '.devEngines.packageManager | "\(.name)@\(.version | sub("\\+.*"; ""))"' "./$WEBNAM-$VERSION/package.json")"
 corepack pack -o "$COREPACK_HOME/pm.tgz" \
-  "$(jq -r '.devEngines.packageManager | "\(.name)@\(.version | sub("\\+.*"; ""))"' "./$WEBNAM-$VERSION/package.json")" \
+  "$PNPMVER" \
   "yarn@^1"
 corepack enable --install-directory "$COREPACK_HOME/bin"
-export PATH="$COREPACK_HOME/bin:$PATH"
-ln -sf ../v1/pnpm/$(pnpm --version)/bin/pnpm.mjs $COREPACK_HOME/bin/pnpm
-ln -sf ../v1/pnpm/$(pnpm --version)/bin/pnpx.mjs $COREPACK_HOME/bin/pnpx
+export PATH="$COREPACK_HOME/v1/yarn/1.22.22/bin:$COREPACK_HOME/bin:$PATH"
 pnpm config set store-dir "$XDG_CONFIG_HOME/pnpm-store"
 pnpm config set fetchRetries 5
 pnpm config set fetchTimeout 120000
+ln -sf ../v1/pnpm/${PNPMVER#*@}/pnpm-native $COREPACK_HOME/bin/pnpm
 
 # matrix-seshat
 SESHATVERSION=$(jq --raw-output '.dependencies."@matrix-org/seshat"' < $WEBNAM-$VERSION/apps/desktop/package.json | tr -d '^')
@@ -75,7 +75,7 @@ popd
 
 # element-web
 cd "$TMP/$WEBNAM-$VERSION"
-pnpm install --frozen-lockfile
+yes | pnpm install --frozen-lockfile
 
 # element-desktop
 cd "apps/desktop"
@@ -92,8 +92,6 @@ else
 fi
 
 ## element-desktop itself
-cp -a ../../../seshat-$SESHATVERSION/seshat-node ./
-pnpm link ./seshat-node
 pnpm install --frozen-lockfile
 pnpm store add $(python3 -c "
 import yaml
@@ -150,6 +148,7 @@ tar --sort=name \
     "seshat-$SESHATVERSION/seshat-node/.cargo/config.toml" \
     "$WEBNAM-$VERSION/electron-cache" \
     "$WEBNAM-$VERSION/corepack/pm.tgz" \
+    "$WEBNAM-$VERSION/corepack/v1/pnpm/${PNPMVER#*@}/pnpm-native" \
   | xz -6e --threads=1 > "$OUTPUT/$PRGNAM-$VERSION-vendored-sources.tar.xz"
 cd "$CWD"
 echo "Removing directory $TMP..."
