@@ -26,7 +26,7 @@ cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=yubioath-desktop
 TARNAM=yubico-authenticator
-VERSION=${VERSION:-7.4.1}
+VERSION=${VERSION:-7.5.0}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
 PKGTYPE=${PKGTYPE:-tgz}
@@ -63,9 +63,9 @@ set -e
 rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
-rm -rf $TARNAM-$VERSION-linux
-tar xvf $CWD/$TARNAM-$VERSION-linux.tar.gz --no-same-owner
-cd $TARNAM-$VERSION-linux
+rm -rf $TARNAM-$VERSION-linux-x64
+tar xvf $CWD/$TARNAM-$VERSION-linux-x64.tar.gz --no-same-owner
+cd $TARNAM-$VERSION-linux-x64
 find . ! -type l    -a \( \
   \(     -perm /111 -a ! -perm 755 -a -exec chmod -f 755 {} + \) -o \
   \(   ! -perm /111 -a ! -perm 644 -a -exec chmod -f 644 {} + \) \)
